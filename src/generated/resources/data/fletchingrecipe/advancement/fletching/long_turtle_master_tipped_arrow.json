@@ -11,13 +11,7 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "fletchingrecipe:fletching/long_turtle_master_tipped_arrow"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_turtle_master_lingering_potion": {
+    "has_long_turtle_master_lingering_potion": {
       "conditions": {
         "items": [
           {
@@ -31,12 +25,18 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "fletchingrecipe:fletching/long_turtle_master_tipped_arrow"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_turtle_master_lingering_potion",
+      "has_long_turtle_master_lingering_potion",
       "has_arrow"
     ]
   ],

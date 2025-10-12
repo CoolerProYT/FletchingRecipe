@@ -9,6 +9,7 @@ import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -72,14 +73,14 @@ public class FletchingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> resourceKey) {
+    public void save(RecipeOutput recipeOutput, ResourceLocation resourceLocation) {
         Advancement.Builder advancement = recipeOutput.advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(resourceKey))
-                .rewards(AdvancementRewards.Builder.recipe(resourceKey))
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(resourceLocation))
+                .rewards(AdvancementRewards.Builder.recipe(resourceLocation))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement::addCriterion);
 
         FletchingTableRecipe recipe = new FletchingTableRecipe(top, middle, bottom != null ? Optional.of(bottom) : Optional.empty(), output);
-        recipeOutput.accept(resourceKey, recipe, advancement.build(resourceKey.location()));
+        recipeOutput.accept(resourceLocation, recipe, advancement.build(resourceLocation));
     }
 }

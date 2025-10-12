@@ -24,7 +24,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
@@ -66,10 +65,5 @@ public class FletchingRecipe {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
-    }
-
-    @SubscribeEvent
-    public void onOnDatapackSync(OnDatapackSyncEvent event) {
-        event.sendRecipes(FLETCHING_RECIPE_TYPE.get());
     }
 }

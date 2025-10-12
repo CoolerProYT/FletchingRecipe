@@ -1,21 +1,10 @@
 {
   "type": "fletchingrecipe:fletching",
-  "top": {
-    "count": 1,
-    "ingredient": {
-      "neoforge:ingredient_type": "neoforge:components",
-      "components": {
-        "minecraft:potion_contents": {
-          "potion": "minecraft:night_vision"
-        }
-      },
-      "items": "minecraft:lingering_potion",
-      "strict": true
-    }
-  },
   "middle": {
     "count": 8,
-    "ingredient": "minecraft:arrow"
+    "ingredient": {
+      "item": "minecraft:arrow"
+    }
   },
   "output": {
     "components": {
@@ -25,5 +14,18 @@
     },
     "count": 8,
     "id": "minecraft:tipped_arrow"
+  },
+  "top": {
+    "count": 1,
+    "ingredient": {
+      "type": "neoforge:components",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:night_vision"
+        }
+      },
+      "items": "minecraft:lingering_potion",
+      "strict": true
+    }
   }
 }

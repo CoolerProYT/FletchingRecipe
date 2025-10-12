@@ -27,6 +27,16 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
+    public boolean canCraftInDimensions(int i, int i1) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
+        return output;
+    }
+
+    @Override
     public RecipeSerializer<? extends Recipe<FletchingRecipeInput>> getSerializer() {
         return FletchingRecipe.FLETCHING_RECIPE_SERIALIZER.get();
     }
@@ -34,16 +44,6 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     @Override
     public RecipeType<? extends Recipe<FletchingRecipeInput>> getType() {
         return FletchingRecipe.FLETCHING_RECIPE_TYPE.get();
-    }
-
-    @Override
-    public PlacementInfo placementInfo() {
-        return PlacementInfo.NOT_PLACEABLE;
-    }
-
-    @Override
-    public RecipeBookCategory recipeBookCategory() {
-        return null;
     }
 
     public static class Serializer implements RecipeSerializer<FletchingTableRecipe>{

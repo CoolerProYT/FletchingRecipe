@@ -2,7 +2,9 @@
   "type": "fletchingrecipe:fletching",
   "middle": {
     "count": 8,
-    "ingredient": "minecraft:arrow"
+    "ingredient": {
+      "item": "minecraft:arrow"
+    }
   },
   "output": {
     "components": {
@@ -16,7 +18,7 @@
   "top": {
     "count": 1,
     "ingredient": {
-      "neoforge:ingredient_type": "neoforge:components",
+      "type": "neoforge:components",
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:long_water_breathing"

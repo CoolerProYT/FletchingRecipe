@@ -134,7 +134,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         if (optional.isPresent()) {
             RecipeHolder<FletchingTableRecipe> recipeholder = optional.get();
             FletchingTableRecipe recipe = recipeholder.value();
-            if (resultSlots.setRecipeUsed(serverplayer, recipeholder)) {
+            if (resultSlots.setRecipeUsed(level, serverplayer, recipeholder)) {
                 ItemStack itemstack1 = recipe.assemble(input, level.registryAccess());
                 if (itemstack1.isItemEnabled(level.enabledFeatures())) {
                     itemstack = itemstack1;

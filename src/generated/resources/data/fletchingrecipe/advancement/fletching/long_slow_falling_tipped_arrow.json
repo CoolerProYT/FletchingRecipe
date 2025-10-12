@@ -11,7 +11,7 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_slow_falling_lingering_potion": {
+    "has_long_slow_falling_lingering_potion": {
       "conditions": {
         "items": [
           {
@@ -36,7 +36,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_slow_falling_lingering_potion",
+      "has_long_slow_falling_lingering_potion",
       "has_arrow"
     ]
   ],

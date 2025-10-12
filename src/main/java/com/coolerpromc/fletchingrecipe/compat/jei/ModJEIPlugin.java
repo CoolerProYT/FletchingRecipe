@@ -1,7 +1,6 @@
 package com.coolerpromc.fletchingrecipe.compat.jei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.coolerpromc.fletchingrecipe.FletchingRecipeClient;
 import com.coolerpromc.fletchingrecipe.compat.jei.category.FletchingCategory;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableScreen;
@@ -13,13 +12,11 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @JeiPlugin
@@ -39,15 +36,14 @@ public class ModJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(FletchingCategory.FLETCHING_TYPE, Blocks.FLETCHING_TABLE);
+        registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), FletchingCategory.FLETCHING_TYPE);
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<FletchingTableRecipe>> treeSimulatorRecipe = new ArrayList<>(FletchingRecipeClient.recipeMap.byType(FletchingRecipe.FLETCHING_RECIPE_TYPE.get()));
-        List<ResourceKey<Recipe<?>>> keys = treeSimulatorRecipe.stream().map(RecipeHolder::id).toList();
+        List<RecipeHolder<FletchingTableRecipe>> treeSimulatorRecipe = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get());
 
-        registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe.stream().toList());
+        registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe.stream().map(RecipeHolder::value).toList());
     }
 
     @Override

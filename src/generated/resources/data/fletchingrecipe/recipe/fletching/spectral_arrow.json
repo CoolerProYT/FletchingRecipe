@@ -2,7 +2,9 @@
   "type": "fletchingrecipe:fletching",
   "middle": {
     "count": 1,
-    "ingredient": "minecraft:arrow"
+    "ingredient": {
+      "item": "minecraft:arrow"
+    }
   },
   "output": {
     "count": 2,
@@ -10,6 +12,8 @@
   },
   "top": {
     "count": 4,
-    "ingredient": "minecraft:glowstone_dust"
+    "ingredient": {
+      "item": "minecraft:glowstone_dust"
+    }
   }
 }
