@@ -1,0 +1,29 @@
+{
+  "type": "fletchingrecipe:fletching",
+  "middle": {
+    "count": 8,
+    "ingredient": "minecraft:arrow"
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "minecraft:swiftness"
+      }
+    },
+    "count": 8,
+    "id": "minecraft:tipped_arrow"
+  },
+  "top": {
+    "count": 1,
+    "ingredient": {
+      "neoforge:ingredient_type": "neoforge:components",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:swiftness"
+        }
+      },
+      "items": "minecraft:lingering_potion",
+      "strict": true
+    }
+  }
+}
