@@ -45,8 +45,6 @@ public class ModJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<FletchingTableRecipe>> treeSimulatorRecipe = new ArrayList<>(FletchingRecipeClient.recipeMap.byType(FletchingRecipe.FLETCHING_RECIPE_TYPE.get()));
-        List<ResourceKey<Recipe<?>>> keys = treeSimulatorRecipe.stream().map(RecipeHolder::id).toList();
-
         registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe.stream().toList());
     }
 
