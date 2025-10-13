@@ -45,8 +45,15 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
 | `strict`      | boolean      | Should be always `true`                                          |
 
 ---
-`ItemStack` lets you to define
+`ItemStack` lets you to define the item, count and nbt of the stack
 
+| Property           | Type    | Description                                                                                                                                          |
+|--------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `count`            | integer | Amount of the stack                                  |
+| `item`             | string  | The item ID for the target item                                    |
+| `nbt` *(Optional)* | `Map`        | A key-value pair of JSON Object for NBT name and value          |
+
+---
 ### Example
 ```json5
 {
@@ -82,7 +89,7 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": {
+    "nbt": { // nbt is optional
       "Potion": "minecraft:awkward"
     }
   }
