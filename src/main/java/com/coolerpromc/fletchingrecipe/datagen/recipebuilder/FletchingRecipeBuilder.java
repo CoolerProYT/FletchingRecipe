@@ -1,31 +1,36 @@
 package com.coolerpromc.fletchingrecipe.datagen.recipebuilder;
 
+import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.advancement.Advancement;
-import net.minecraft.advancement.AdvancementCriterion;
-import net.minecraft.advancement.AdvancementRequirements;
 import net.minecraft.advancement.AdvancementRewards;
+import net.minecraft.advancement.criterion.CriterionConditions;
 import net.minecraft.advancement.criterion.RecipeUnlockedCriterion;
 import net.minecraft.data.server.recipe.CraftingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.RecipeExporter;
+import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class FletchingRecipeBuilder implements CraftingRecipeJsonBuilder {
     private SizedIngredient top;
     private SizedIngredient middle;
     private SizedIngredient bottom;
     private ItemStack output;
-    private final Map<String, AdvancementCriterion<?>> criteria = new LinkedHashMap<>();
+    private final Map<String, CriterionConditions> criteria = new LinkedHashMap<>();
     @Nullable
     private String group;
 
@@ -56,7 +61,7 @@ public class FletchingRecipeBuilder implements CraftingRecipeJsonBuilder {
     }
 
     @Override
-    public FletchingRecipeBuilder criterion(String s, AdvancementCriterion<?> criterion) {
+    public FletchingRecipeBuilder criterion(String s, CriterionConditions criterion) {
         this.criteria.put(s, criterion);
         return this;
     }
@@ -73,14 +78,53 @@ public class FletchingRecipeBuilder implements CraftingRecipeJsonBuilder {
     }
 
     @Override
-    public void offerTo(RecipeExporter exporter, Identifier recipeId) {
-        Advancement.Builder advancement = exporter.getAdvancementBuilder()
-                .criterion("has_the_recipe", RecipeUnlockedCriterion.create(recipeId))
-                .rewards(AdvancementRewards.Builder.recipe(recipeId))
-                .criteriaMerger(AdvancementRequirements.CriterionMerger.OR);
-        this.criteria.forEach(advancement::criterion);
+    public void offerTo(Consumer<RecipeJsonProvider> exporter, Identifier recipeId) {
+        exporter.accept(new Result(top, middle, bottom != null ? Optional.of(bottom) : Optional.empty(), output, recipeId));
+    }
 
-        FletchingTableRecipe recipe = new FletchingTableRecipe(top, middle, bottom != null ? Optional.of(bottom) : Optional.empty(), output);
-        exporter.accept(recipeId, recipe, advancement.build(recipeId));
+    public static JsonElement itemToJson(ItemStack stack){
+        JsonObject json = new JsonObject();
+        json.addProperty("item", Registries.ITEM.getId(stack.getItem()).toString());
+        json.addProperty("count", stack.getCount());
+        if (stack.hasNbt()) {
+            json.add("nbt", NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, stack.getNbt()));
+        }
+
+        return json;
+    }
+
+    public record Result(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output, Identifier id) implements RecipeJsonProvider{
+
+        @Override
+        public void serialize(JsonObject jsonObject) {
+            jsonObject.addProperty("type", "fletchingrecipe:fletching");
+
+            jsonObject.add("top", top.toJson());
+            jsonObject.add("middle", middle.toJson());
+
+            bottom.ifPresent(sizedIngredient -> jsonObject.add("bottom", sizedIngredient.toJson()));
+
+            jsonObject.add("output", itemToJson(output));
+        }
+
+        @Override
+        public Identifier getRecipeId() {
+            return id;
+        }
+
+        @Override
+        public RecipeSerializer<?> getSerializer() {
+            return FletchingRecipe.FLETCHING_RECIPE_SERIALIZER;
+        }
+
+        @Override
+        public @Nullable JsonObject toAdvancementJson() {
+            return null;
+        }
+
+        @Override
+        public @Nullable Identifier getAdvancementId() {
+            return null;
+        }
     }
 }

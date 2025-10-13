@@ -46,7 +46,7 @@ public class FletchingCategory implements DisplayCategory<FletchingDisplay> {
             widgets.add(Widgets.createSlot(new Point(bounds.x + 28, bounds.y + 7 + i * 18)).entries(display.getInputEntries().get(i)).markInput());
         }
 
-        widgets.add(Widgets.createSlot(new Point(bounds.x + 104, bounds.y + 25)).disableBackground().entries(display.getOutputEntries().getFirst()).markOutput());
+        widgets.add(Widgets.createSlot(new Point(bounds.x + 104, bounds.y + 25)).disableBackground().entries(display.getOutputEntries().get(0)).markOutput());
 
         return widgets;
     }

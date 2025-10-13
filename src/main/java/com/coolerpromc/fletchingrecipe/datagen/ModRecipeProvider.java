@@ -5,32 +5,30 @@ import com.coolerpromc.fletchingrecipe.datagen.recipebuilder.FletchingRecipeBuil
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.fabricmc.fabric.impl.recipe.ingredient.builtin.ComponentsIngredient;
-import net.minecraft.advancement.AdvancementCriterion;
+import net.fabricmc.fabric.impl.recipe.ingredient.builtin.NbtIngredient;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.data.server.recipe.RecipeExporter;
+import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.predicate.ComponentPredicate;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.predicate.item.ItemPredicate;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class ModRecipeProvider extends FabricRecipeProvider {
-    public ModRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> lookup) {
-        super(output, lookup);
+    public ModRecipeProvider(FabricDataOutput output) {
+        super(output);
     }
 
     @Override
-    public void generate(RecipeExporter exporter) {
+    public void generate(Consumer<RecipeJsonProvider> exporter) {
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.FLINT, 1))
                 .middle(SizedIngredient.of(Items.STICK, 1))
@@ -50,14 +48,13 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .offerTo(exporter, Identifier.of(FletchingRecipe.MOD_ID, "fletching/spectral_arrow"));
 
         Registries.POTION.getIndexedEntries().forEach(potion -> {
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
-            outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+            ItemStack outputStack = PotionUtil.setPotion(new ItemStack(Items.TIPPED_ARROW, 8), potion.value());
 
             FletchingRecipeBuilder.builder()
-                    .top(new SizedIngredient(new ComponentsIngredient(Ingredient.ofItems(Items.LINGERING_POTION), ComponentChanges.builder().add(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion)).build()).toVanilla(), 1))
+                    .top(new SizedIngredient(new NbtIngredient(Ingredient.ofItems(Items.LINGERING_POTION), outputStack.getOrCreateNbt(), true).toVanilla(), 1))
                     .middle(SizedIngredient.of(Items.ARROW, 8))
                     .output(outputStack)
-                    .criterion(getHasName(Items.LINGERING_POTION, new PotionContentsComponent(potion)), has(Items.LINGERING_POTION, new PotionContentsComponent(potion)))
+                    .criterion(getHasName(Items.LINGERING_POTION, potion), has(Items.LINGERING_POTION, outputStack.getOrCreateNbt()))
                     .criterion(hasItem(Items.ARROW), conditionsFromItem(Items.ARROW))
                     .offerTo(exporter, Identifier.of(FletchingRecipe.MOD_ID, "fletching/" + potion.getKey().get().getValue().getPath() + "_tipped_arrow"));
         });
@@ -68,11 +65,11 @@ public class ModRecipeProvider extends FabricRecipeProvider {
         return "";
     }
 
-    private static String getHasName(ItemConvertible itemLike, PotionContentsComponent key) {
-        return "has_" + key.potion().get().getKey().get().getValue().getPath() + "_" + getItemPath(itemLike);
+    private static String getHasName(ItemConvertible itemLike, RegistryEntry<Potion> key) {
+        return "has_" + key.getKey().get().getValue().getPath() + "_" + getItemPath(itemLike);
     }
 
-    private AdvancementCriterion<InventoryChangedCriterion.Conditions> has(ItemConvertible itemLike, PotionContentsComponent key) {
-        return conditionsFromPredicates(ItemPredicate.Builder.create().component(ComponentPredicate.builder().add(DataComponentTypes.POTION_CONTENTS, key).build()));
+    private InventoryChangedCriterion.Conditions has(ItemConvertible itemLike, NbtCompound key) {
+        return conditionsFromItemPredicates(ItemPredicate.Builder.create().items(itemLike).nbt(key).build());
     }
 }

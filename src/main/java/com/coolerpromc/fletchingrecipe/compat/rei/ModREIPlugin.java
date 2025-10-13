@@ -31,8 +31,7 @@ public class ModREIPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE, fletchingTableRecipeRecipeHolder -> {
-            FletchingTableRecipe recipe = fletchingTableRecipeRecipeHolder.value();
+        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE, recipe -> {
             List<EntryIngredient> input;
             EntryIngredient top = EntryIngredients.ofItemStacks(Arrays.stream(recipe.top().ingredient().getMatchingStacks()).map(stack -> stack.copyWithCount(recipe.top().count())).toList());
             EntryIngredient middle = EntryIngredients.ofItemStacks(Arrays.stream(recipe.middle().ingredient().getMatchingStacks()).map(stack -> stack.copyWithCount(recipe.middle().count())).toList());

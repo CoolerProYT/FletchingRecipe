@@ -1,30 +1,22 @@
 package com.coolerpromc.fletchingrecipe.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.JsonHelper;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 public record SizedIngredient(Ingredient ingredient, int count) {
-    public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(1, Integer.MAX_VALUE, p_274847_ -> "Value must be positive: " + p_274847_);
-
-    public static final Codec<SizedIngredient> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(SizedIngredient::ingredient),
-                    optionalFieldAlwaysWrite(POSITIVE_INT, "count", 1).forGetter(SizedIngredient::count))
-            .apply(instance, SizedIngredient::new));
-
-    public static final PacketCodec<RegistryByteBuf, SizedIngredient> PACKET_CODEC = PacketCodec.tuple(Ingredient.PACKET_CODEC, SizedIngredient::ingredient, PacketCodecs.VAR_INT, SizedIngredient::count, SizedIngredient::new);
-
     public static SizedIngredient of(ItemConvertible item, int count) {
         return new SizedIngredient(Ingredient.ofItems(item), count);
     }
@@ -35,9 +27,14 @@ public record SizedIngredient(Ingredient ingredient, int count) {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SizedIngredient(Ingredient ingredient1, int count1))) return false;
-        return count == count1 && ingredient.equals(ingredient1);
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof SizedIngredient)) {
+            return false;
+        } else {
+            SizedIngredient other = (SizedIngredient)o;
+            return this.count == other.count && this.ingredient.equals(other.ingredient);
+        }
     }
 
     @Override
@@ -50,16 +47,32 @@ public record SizedIngredient(Ingredient ingredient, int count) {
         return count + "x " + ingredient;
     }
 
-    public static <T> MapCodec<T> optionalFieldAlwaysWrite(Codec<T> codec, String name, T defaultValue) {
-        return codec.optionalFieldOf(name).xmap(o -> o.orElse(defaultValue), Optional::of);
+    public JsonElement toJson() {
+        JsonObject json = new JsonObject();
+        json.add("ingredient", ingredient.toJson());
+        json.addProperty("count", count);
+        return json;
     }
 
-    private static Codec<Integer> intRangeWithMessage(int min, int max, Function<Integer, String> errorMessage) {
-        return Codec.INT
-                .validate(
-                        p_274889_ -> p_274889_.compareTo(min) >= 0 && p_274889_.compareTo(max) <= 0
-                                ? DataResult.success(p_274889_)
-                                : DataResult.error(() -> errorMessage.apply(p_274889_))
-                );
+    public static SizedIngredient fromJson(JsonElement element) {
+        if (element.isJsonObject()) {
+            JsonObject obj = element.getAsJsonObject();
+            Ingredient ingredient = Ingredient.fromJson(obj.get("ingredient"));
+            int count = JsonHelper.getInt(obj, "count", 1);
+            return new SizedIngredient(ingredient, count);
+        } else {
+            return new SizedIngredient(Ingredient.fromJson(element), 1);
+        }
+    }
+
+    public void write(PacketByteBuf buffer) {
+        ingredient.write(buffer);
+        buffer.writeVarInt(count);
+    }
+
+    public static SizedIngredient fromPacket(PacketByteBuf buffer) {
+        Ingredient ingredient = Ingredient.fromPacket(buffer);
+        int count = buffer.readVarInt();
+        return new SizedIngredient(ingredient, count);
     }
 }

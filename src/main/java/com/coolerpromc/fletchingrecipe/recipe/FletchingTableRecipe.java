@@ -2,21 +2,31 @@ package com.coolerpromc.fletchingrecipe.recipe;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 
+import java.util.Objects;
 import java.util.Optional;
 
-public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output) implements Recipe<FletchingRecipeInput> {
+import static net.minecraft.datafixer.fix.BlockEntitySignTextStrictJsonFix.GSON;
+
+public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output, Identifier id) implements Recipe<FletchingRecipeInput> {
     @Override
     public boolean matches(FletchingRecipeInput fletchingRecipeInput, World level) {
         return bottom.map(sizedIngredient -> top.test(fletchingRecipeInput.top()) && middle.test(fletchingRecipeInput.middle()) && sizedIngredient.test(fletchingRecipeInput.bottom()))
@@ -24,7 +34,7 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
-    public ItemStack craft(FletchingRecipeInput fletchingRecipeInput, RegistryWrapper.WrapperLookup provider) {
+    public ItemStack craft(FletchingRecipeInput inventory, DynamicRegistryManager registryManager) {
         return this.output.copy();
     }
 
@@ -34,8 +44,13 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+    public ItemStack getOutput(DynamicRegistryManager registryManager) {
         return this.output.copy();
+    }
+
+    @Override
+    public Identifier getId() {
+        return id;
     }
 
     @Override
@@ -48,30 +63,83 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
         return FletchingRecipe.FLETCHING_RECIPE_TYPE;
     }
 
+    public static ItemStack getItemStack(JsonObject json, boolean readNBT, boolean disallowsAirInRecipe) {
+        String itemName = JsonHelper.getString(json, "item");
+        Item item = getItem(itemName, disallowsAirInRecipe);
+        if (readNBT && json.has("nbt")) {
+            NbtCompound nbt = getNBT(json.get("nbt"));
+            NbtCompound tmp = new NbtCompound();
+            if (nbt.contains("ForgeCaps")) {
+                tmp.put("ForgeCaps", nbt.get("ForgeCaps"));
+                nbt.remove("ForgeCaps");
+            }
+
+            tmp.put("tag", nbt);
+            tmp.putString("id", itemName);
+            tmp.putInt("Count", JsonHelper.getInt(json, "count", 1));
+            return ItemStack.fromNbt(tmp);
+        } else {
+            return new ItemStack(item, JsonHelper.getInt(json, "count", 1));
+        }
+    }
+
+    public static Item getItem(String itemName, boolean disallowsAirInRecipe) {
+        Identifier itemKey = new Identifier(itemName);
+        if (!Registries.ITEM.containsId(itemKey)) {
+            throw new JsonSyntaxException("Unknown item '" + itemName + "'");
+        } else {
+            Item item = Registries.ITEM.get(itemKey);
+            if (disallowsAirInRecipe && item == Items.AIR) {
+                throw new JsonSyntaxException("Invalid item: " + itemName);
+            } else {
+                return Objects.requireNonNull(item);
+            }
+        }
+    }
+
+    public static NbtCompound getNBT(JsonElement element) {
+        try {
+            return element.isJsonObject() ? StringNbtReader.parse(GSON.toJson(element)) : StringNbtReader.parse(JsonHelper.asString(element, "nbt"));
+        } catch (CommandSyntaxException e) {
+            throw new JsonSyntaxException("Invalid NBT Entry: " + String.valueOf(e));
+        }
+    }
+
     public static class Serializer implements RecipeSerializer<FletchingTableRecipe> {
         public static final Serializer INSTANCE = new Serializer();
 
-        public MapCodec<FletchingTableRecipe> codec() {
-            return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    SizedIngredient.CODEC.fieldOf("top").forGetter(FletchingTableRecipe::top),
-                    SizedIngredient.CODEC.fieldOf("middle").forGetter(FletchingTableRecipe::middle),
-                    SizedIngredient.CODEC.optionalFieldOf("bottom").forGetter(FletchingTableRecipe::bottom),
-                    ItemStack.CODEC.fieldOf("output").forGetter(FletchingTableRecipe::output)
-            ).apply(instance, FletchingTableRecipe::new));
+        @Override
+        public FletchingTableRecipe read(Identifier id, JsonObject jsonObject) {
+            SizedIngredient top = SizedIngredient.fromJson(jsonObject.getAsJsonObject("top"));
+            SizedIngredient middle = SizedIngredient.fromJson(jsonObject.getAsJsonObject("middle"));
+            Optional<SizedIngredient> bottom = Optional.empty();
+            if (jsonObject.has("bottom")){
+                bottom = Optional.of(SizedIngredient.fromJson(jsonObject.getAsJsonObject("bottom")));
+            }
+            ItemStack output = FletchingTableRecipe.getItemStack(jsonObject.getAsJsonObject("output"), true, true);
+
+            return new FletchingTableRecipe(top, middle, bottom, output, id);
         }
 
-        public PacketCodec<RegistryByteBuf, FletchingTableRecipe> packetCodec() {
-            return PacketCodec.tuple(
-                    SizedIngredient.PACKET_CODEC,
-                    FletchingTableRecipe::top,
-                    SizedIngredient.PACKET_CODEC,
-                    FletchingTableRecipe::middle,
-                    SizedIngredient.PACKET_CODEC.collect(PacketCodecs::optional),
-                    FletchingTableRecipe::bottom,
-                    ItemStack.PACKET_CODEC,
-                    FletchingTableRecipe::output,
-                    FletchingTableRecipe::new
-            );
+        @Override
+        public FletchingTableRecipe read(Identifier id, PacketByteBuf buf) {
+            SizedIngredient top = SizedIngredient.fromPacket(buf);
+            SizedIngredient middle = SizedIngredient.fromPacket(buf);
+            Optional<SizedIngredient> bottom = Optional.empty();
+            if (buf.readBoolean()){
+                bottom = Optional.of(SizedIngredient.fromPacket(buf));
+            }
+            ItemStack output = buf.readItemStack();
+            return new FletchingTableRecipe(top, middle, bottom, output, id);
+        }
+
+        @Override
+        public void write(PacketByteBuf buf, FletchingTableRecipe recipe) {
+            recipe.top.write(buf);
+            recipe.middle.write(buf);
+            buf.writeBoolean(recipe.bottom.isPresent());
+            recipe.bottom.ifPresent(sizedIngredient -> sizedIngredient.write(buf));
+            buf.writeItemStack(recipe.output);
         }
     }
 }

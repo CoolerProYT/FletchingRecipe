@@ -7,14 +7,13 @@ import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.CraftingResultSlot;
 
 public class FletchingResultSlot extends CraftingResultSlot {
     private final RecipeInputInventory craftSlots;
     private final ScreenHandler menu;
-    private RecipeEntry<FletchingTableRecipe> recipeHolder = null;
+    private FletchingTableRecipe recipe = null;
 
     public FletchingResultSlot(PlayerEntity player, RecipeInputInventory craftSlots, CraftingResultInventory container, int slot, int xPosition, int yPosition, ScreenHandler menu) {
         super(player, craftSlots, container, slot, xPosition, yPosition);
@@ -26,7 +25,7 @@ public class FletchingResultSlot extends CraftingResultSlot {
     public void onTakeItem(PlayerEntity player, ItemStack stack) {
         this.onCrafted(stack);
 
-        if (recipeHolder != null && recipeHolder.value() instanceof FletchingTableRecipe recipe) {
+        if (recipe != null) {
             consumeIngredient(craftSlots, 0, recipe.top());
             consumeIngredient(craftSlots, 1, recipe.middle());
 
@@ -53,7 +52,7 @@ public class FletchingResultSlot extends CraftingResultSlot {
         }
     }
 
-    public void setRecipeHolder(RecipeEntry<FletchingTableRecipe> recipeHolder) {
-        this.recipeHolder = recipeHolder;
+    public void setRecipe(FletchingTableRecipe recipe) {
+        this.recipe = recipe;
     }
 }

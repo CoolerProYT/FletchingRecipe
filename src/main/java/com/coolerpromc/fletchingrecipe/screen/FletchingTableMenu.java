@@ -13,7 +13,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
@@ -134,17 +133,16 @@ public class FletchingTableMenu extends ScreenHandler {
         FletchingRecipeInput input = new FletchingRecipeInput(craftSlots.getStack(0), craftSlots.getStack(1), craftSlots.getStack(2));
         ServerPlayerEntity serverplayer = (ServerPlayerEntity)player;
         ItemStack itemstack = ItemStack.EMPTY;
-        Optional<RecipeEntry<FletchingTableRecipe>> optional = level.getServer().getRecipeManager().getFirstMatch(FletchingRecipe.FLETCHING_RECIPE_TYPE, input, level);
+        Optional<FletchingTableRecipe> optional = level.getServer().getRecipeManager().getFirstMatch(FletchingRecipe.FLETCHING_RECIPE_TYPE, input, level);
         if (optional.isPresent()) {
-            RecipeEntry<FletchingTableRecipe> recipeholder = optional.get();
-            FletchingTableRecipe recipe = recipeholder.value();
-            if (resultSlots.shouldCraftRecipe(level, serverplayer, recipeholder)) {
+            FletchingTableRecipe recipe = optional.get();
+            if (resultSlots.shouldCraftRecipe(level, serverplayer, recipe)) {
                 ItemStack itemstack1 = recipe.craft(input, level.getRegistryManager());
                 if (itemstack1.isItemEnabled(level.getEnabledFeatures())) {
                     itemstack = itemstack1;
                 }
             }
-            fletchingResultSlot.setRecipeHolder(recipeholder);
+            fletchingResultSlot.setRecipe(recipe);
         }
 
         resultSlots.setStack(0, itemstack);

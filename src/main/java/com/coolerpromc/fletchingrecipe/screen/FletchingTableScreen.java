@@ -16,6 +16,7 @@ public class FletchingTableScreen extends HandledScreen<FletchingTableMenu> {
 
     @Override
     protected void drawBackground(DrawContext context, float deltaTicks, int mouseX, int mouseY) {
+        renderBackground(context);
         context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
     }
 
