@@ -15,7 +15,7 @@ public record FletchingRecipeInput(ItemStack top, ItemStack middle, ItemStack bo
     }
 
     @Override
-    public int size() {
+    public int getSize() {
         return 3;
     }
 }

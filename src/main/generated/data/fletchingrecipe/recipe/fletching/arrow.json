@@ -2,11 +2,15 @@
   "type": "fletchingrecipe:fletching",
   "bottom": {
     "count": 1,
-    "ingredient": "minecraft:feather"
+    "ingredient": {
+      "item": "minecraft:feather"
+    }
   },
   "middle": {
     "count": 1,
-    "ingredient": "minecraft:stick"
+    "ingredient": {
+      "item": "minecraft:stick"
+    }
   },
   "output": {
     "count": 4,
@@ -14,6 +18,8 @@
   },
   "top": {
     "count": 1,
-    "ingredient": "minecraft:flint"
+    "ingredient": {
+      "item": "minecraft:flint"
+    }
   }
 }

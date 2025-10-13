@@ -27,16 +27,16 @@
 		"rei_client": [
 			"com.coolerpromc.fletchingrecipe.compat.rei.ModREIPlugin"
 		],
-		"rei_common": [
-			"com.coolerpromc.fletchingrecipe.compat.rei.ModREIServerPlugin"
+		"jei_mod_plugin": [
+			"com.coolerpromc.fletchingrecipe.compat.jei.ModJEIPlugin"
 		]
 	},
 	"mixins": [
 		"fletchingrecipe.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.17.3",
-		"minecraft": "~1.21.10",
+		"fabricloader": ">=0.17.0",
+		"minecraft": "1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
 	},

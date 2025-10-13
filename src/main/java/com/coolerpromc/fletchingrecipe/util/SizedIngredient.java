@@ -19,14 +19,14 @@ public record SizedIngredient(Ingredient ingredient, int count) {
     public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(1, Integer.MAX_VALUE, p_274847_ -> "Value must be positive: " + p_274847_);
 
     public static final Codec<SizedIngredient> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Ingredient.CODEC.fieldOf("ingredient").forGetter(SizedIngredient::ingredient),
+                    Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(SizedIngredient::ingredient),
                     optionalFieldAlwaysWrite(POSITIVE_INT, "count", 1).forGetter(SizedIngredient::count))
             .apply(instance, SizedIngredient::new));
 
     public static final PacketCodec<RegistryByteBuf, SizedIngredient> PACKET_CODEC = PacketCodec.tuple(Ingredient.PACKET_CODEC, SizedIngredient::ingredient, PacketCodecs.VAR_INT, SizedIngredient::count, SizedIngredient::new);
 
     public static SizedIngredient of(ItemConvertible item, int count) {
-        return new SizedIngredient(Ingredient.ofItem(item), count);
+        return new SizedIngredient(Ingredient.ofItems(item), count);
     }
 
     public boolean test(ItemStack stack) {
@@ -36,8 +36,8 @@ public record SizedIngredient(Ingredient ingredient, int count) {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SizedIngredient other)) return false;
-        return count == other.count && ingredient.equals(other.ingredient);
+        if (!(o instanceof SizedIngredient(Ingredient ingredient1, int count1))) return false;
+        return count == count1 && ingredient.equals(ingredient1);
     }
 
     @Override

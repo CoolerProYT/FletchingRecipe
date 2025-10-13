@@ -21,6 +21,10 @@ repositories {
 			includeGroup "curse.maven"
 		}
 	}
+	maven {
+		name = "Jared's maven"
+		url = "https://maven.blamejared.com/"
+	}
 }
 
 fabricApi {
@@ -39,7 +43,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:${rei_version}"
-	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
+	modImplementation "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
+
+	modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api-intermediary:${jei_version}")
 }
 
 processResources {

@@ -138,7 +138,7 @@ public class FletchingTableMenu extends ScreenHandler {
         if (optional.isPresent()) {
             RecipeEntry<FletchingTableRecipe> recipeholder = optional.get();
             FletchingTableRecipe recipe = recipeholder.value();
-            if (resultSlots.shouldCraftRecipe(serverplayer, recipeholder)) {
+            if (resultSlots.shouldCraftRecipe(level, serverplayer, recipeholder)) {
                 ItemStack itemstack1 = recipe.craft(input, level.getRegistryManager());
                 if (itemstack1.isItemEnabled(level.getEnabledFeatures())) {
                     itemstack = itemstack1;
@@ -148,7 +148,7 @@ public class FletchingTableMenu extends ScreenHandler {
         }
 
         resultSlots.setStack(0, itemstack);
-        this.setReceivedStack(0, itemstack);
+        this.setPreviousTrackedSlot(0, itemstack);
         serverplayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, this.nextRevision(), 0, itemstack));
     }
 

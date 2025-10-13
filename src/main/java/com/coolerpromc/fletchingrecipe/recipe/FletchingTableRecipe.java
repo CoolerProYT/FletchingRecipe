@@ -8,11 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.recipe.IngredientPlacement;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.book.RecipeBookCategory;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.World;
 
@@ -31,6 +29,16 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
+    public boolean fits(int width, int height) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+        return this.output.copy();
+    }
+
+    @Override
     public RecipeSerializer<? extends Recipe<FletchingRecipeInput>> getSerializer() {
         return FletchingRecipe.FLETCHING_RECIPE_SERIALIZER;
     }
@@ -38,16 +46,6 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     @Override
     public RecipeType<? extends Recipe<FletchingRecipeInput>> getType() {
         return FletchingRecipe.FLETCHING_RECIPE_TYPE;
-    }
-
-    @Override
-    public IngredientPlacement getIngredientPlacement() {
-        return IngredientPlacement.NONE;
-    }
-
-    @Override
-    public RecipeBookCategory getRecipeBookCategory() {
-        return null;
     }
 
     public static class Serializer implements RecipeSerializer<FletchingTableRecipe> {

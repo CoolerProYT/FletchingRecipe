@@ -2,7 +2,9 @@
   "type": "fletchingrecipe:fletching",
   "middle": {
     "count": 8,
-    "ingredient": "minecraft:arrow"
+    "ingredient": {
+      "item": "minecraft:arrow"
+    }
   },
   "output": {
     "components": {
@@ -17,7 +19,9 @@
     "count": 1,
     "ingredient": {
       "fabric:type": "fabric:components",
-      "base": "minecraft:lingering_potion",
+      "base": {
+        "item": "minecraft:lingering_potion"
+      },
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:long_strength"
