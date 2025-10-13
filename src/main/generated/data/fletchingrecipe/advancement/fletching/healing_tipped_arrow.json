@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_arrow": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:arrow"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_healing_lingering_potion": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:potion_contents": {
+                "potion": "minecraft:healing"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "fletchingrecipe:fletching/healing_tipped_arrow"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_healing_lingering_potion",
+      "has_arrow"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "fletchingrecipe:fletching/healing_tipped_arrow"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+package com.coolerpromc.fletchingrecipe.compat.rei.fletching;
+
+import me.shedaniel.math.Point;
+import me.shedaniel.math.Rectangle;
+import me.shedaniel.rei.api.client.gui.Renderer;
+import me.shedaniel.rei.api.client.gui.widgets.Widget;
+import me.shedaniel.rei.api.client.gui.widgets.Widgets;
+import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
+import me.shedaniel.rei.api.common.category.CategoryIdentifier;
+import me.shedaniel.rei.api.common.util.EntryStacks;
+import net.minecraft.block.Blocks;
+import net.minecraft.text.Text;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FletchingCategory implements DisplayCategory<FletchingDisplay> {
+    @Override
+    public CategoryIdentifier<? extends FletchingDisplay> getCategoryIdentifier() {
+        return FletchingDisplay.CATEGORY_IDENTIFIER;
+    }
+
+    @Override
+    public Text getTitle() {
+        return Text.translatable("block.minecraft.fletching_table");
+    }
+
+    @Override
+    public Renderer getIcon() {
+        return EntryStacks.of(Blocks.FLETCHING_TABLE);
+    }
+
+    @Override
+    public List<Widget> setupDisplay(FletchingDisplay display, Rectangle bounds) {
+        List<Widget> widgets = new ArrayList<>();
+        widgets.add(Widgets.createCategoryBase(new Rectangle(bounds.x, bounds.y, 137, 66)));
+        widgets.add(Widgets.createArrow(new Point(bounds.x + 63, bounds.y + 25)));
+
+        for (int i = 0;i < 3;i++){
+            widgets.add(Widgets.createSlotBackground(new Point(bounds.x + 28, bounds.y + 7 + i * 18)));
+        }
+
+        widgets.add(Widgets.createResultSlotBackground(new Point(bounds.x + 104, bounds.y + 25)));
+
+        for (int i = 0;i < display.getInputEntries().size();i++){
+            widgets.add(Widgets.createSlot(new Point(bounds.x + 28, bounds.y + 7 + i * 18)).entries(display.getInputEntries().get(i)).markInput());
+        }
+
+        widgets.add(Widgets.createSlot(new Point(bounds.x + 104, bounds.y + 25)).disableBackground().entries(display.getOutputEntries().getFirst()).markOutput());
+
+        return widgets;
+    }
+}

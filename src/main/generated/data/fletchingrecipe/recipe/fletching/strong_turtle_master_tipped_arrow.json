@@ -1,0 +1,28 @@
+{
+  "type": "fletchingrecipe:fletching",
+  "middle": {
+    "count": 8,
+    "ingredient": "minecraft:arrow"
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "minecraft:strong_turtle_master"
+      }
+    },
+    "count": 8,
+    "id": "minecraft:tipped_arrow"
+  },
+  "top": {
+    "count": 1,
+    "ingredient": {
+      "fabric:type": "fabric:components",
+      "base": "minecraft:lingering_potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:strong_turtle_master"
+        }
+      }
+    }
+  }
+}

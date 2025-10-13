@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_arrow": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:arrow"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_swiftness_lingering_potion": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:potion_contents": {
+                "potion": "minecraft:strong_swiftness"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "fletchingrecipe:fletching/strong_swiftness_tipped_arrow"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_swiftness_lingering_potion",
+      "has_arrow"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "fletchingrecipe:fletching/strong_swiftness_tipped_arrow"
+    ]
+  }
+}

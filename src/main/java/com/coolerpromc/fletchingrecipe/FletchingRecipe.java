@@ -1,0 +1,53 @@
+package com.coolerpromc.fletchingrecipe;
+
+import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
+import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.RecipeType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class FletchingRecipe implements ModInitializer {
+	public static final String MOD_ID = "fletchingrecipe";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	public static final ScreenHandlerType<FletchingTableMenu> FLETCHING_TABLE_MENU = Registry.register(Registries.SCREEN_HANDLER, Identifier.of(MOD_ID, "fletching_table"), new ScreenHandlerType<>(FletchingTableMenu::new, FeatureSet.empty()));
+	public static final RecipeType<FletchingTableRecipe> FLETCHING_RECIPE_TYPE = Registry.register(Registries.RECIPE_TYPE, Identifier.of(MOD_ID, "fletching"), new RecipeType<FletchingTableRecipe>() {
+		@Override
+		public String toString() {
+			return Identifier.of(MOD_ID, "fletching").toString();
+		}
+	});
+	public static final RecipeSerializer<FletchingTableRecipe> FLETCHING_RECIPE_SERIALIZER = Registry.register(Registries.RECIPE_SERIALIZER, Identifier.of(MOD_ID, "fletching"), FletchingTableRecipe.Serializer.INSTANCE);
+
+	@Override
+	public void onInitialize() {
+		UseBlockCallback.EVENT.register((player, level, hand, blockHitResult) -> {
+			BlockPos pos = blockHitResult.getBlockPos();
+			Block block = level.getBlockState(pos).getBlock();
+
+			if (block == Blocks.FLETCHING_TABLE && (player.getMainHandStack().isEmpty() || (!player.getMainHandStack().isEmpty() && !player.isSneaking()))){
+				if (!level.isClient()){
+					player.openHandledScreen(new SimpleNamedScreenHandlerFactory((i, inventory, player1) -> new FletchingTableMenu(i, inventory, ScreenHandlerContext.create(level, pos)), Text.translatable("block.minecraft.fletching_table")));
+				}
+				return ActionResult.SUCCESS;
+			}
+			return ActionResult.PASS;
+		});
+	}
+}
