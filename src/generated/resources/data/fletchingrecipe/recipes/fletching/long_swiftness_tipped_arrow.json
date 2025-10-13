@@ -9,7 +9,9 @@
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": "{Potion:\"minecraft:long_swiftness\"}"
+    "nbt": {
+      "Potion": "minecraft:long_swiftness"
+    }
   },
   "top": {
     "count": 1,

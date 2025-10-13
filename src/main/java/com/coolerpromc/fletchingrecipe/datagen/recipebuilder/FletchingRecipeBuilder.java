@@ -4,9 +4,11 @@ import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -81,7 +83,7 @@ public class FletchingRecipeBuilder implements RecipeBuilder {
         json.addProperty("item", ForgeRegistries.ITEMS.getKey(stack.getItem()).toString());
         json.addProperty("count", stack.getCount());
         if (stack.hasTag()) {
-            json.addProperty("nbt", stack.getTag().toString());
+            json.add("nbt", NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, stack.getTag()));
         }
 
         return json;

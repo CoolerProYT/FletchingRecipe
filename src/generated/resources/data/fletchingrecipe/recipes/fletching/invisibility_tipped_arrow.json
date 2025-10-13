@@ -9,7 +9,9 @@
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": "{Potion:\"minecraft:invisibility\"}"
+    "nbt": {
+      "Potion": "minecraft:invisibility"
+    }
   },
   "top": {
     "count": 1,

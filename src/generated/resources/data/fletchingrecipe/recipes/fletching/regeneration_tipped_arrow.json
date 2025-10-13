@@ -9,7 +9,9 @@
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": "{Potion:\"minecraft:regeneration\"}"
+    "nbt": {
+      "Potion": "minecraft:regeneration"
+    }
   },
   "top": {
     "count": 1,

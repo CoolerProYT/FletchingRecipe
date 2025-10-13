@@ -9,7 +9,9 @@
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": "{Potion:\"minecraft:water_breathing\"}"
+    "nbt": {
+      "Potion": "minecraft:water_breathing"
+    }
   },
   "top": {
     "count": 1,

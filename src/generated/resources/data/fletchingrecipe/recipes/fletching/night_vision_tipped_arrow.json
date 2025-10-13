@@ -9,7 +9,9 @@
   "output": {
     "count": 8,
     "item": "minecraft:tipped_arrow",
-    "nbt": "{Potion:\"minecraft:night_vision\"}"
+    "nbt": {
+      "Potion": "minecraft:night_vision"
+    }
   },
   "top": {
     "count": 1,
