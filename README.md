@@ -1,4 +1,4 @@
-## 📘 JSON Recipe Format
+# 📘 JSON Recipe Format
 Each `fletchingrecipe:fletching` recipe uses the following properties:
 
 | Property | Type                    | Description |
@@ -10,8 +10,8 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
 | `output` | `ItemStack`               | The resulting crafted item |
 
 
-### 1.20.1
-`SizedIngredient` lets you specify **both** the ingredient and the **stack size** required in the recipe.
+## 1.20.1
+### SizedIngredient
 
 | Property | Type                                          | Description                                                 |
 |-----------|-----------------------------------------------|-------------------------------------------------------------|
@@ -19,14 +19,14 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
 | `ingredient` | `Ingredient/NbtIngredient` | The Ingredient to be used (Reference to Ingredient section) |
 
 ---
-`Ingredient` lets you specify the ingredient.
+### Ingredient
 
 | Property       | Type | Description                                                                           |
 |----------------|------|---------------------------------------------------------------------------------------|
 | `item` / `tag` | string | The item ID or tag used as the ingredient                                             |
 
 ---
-`NbtIngredient` lets you specify the ingredient with NBT data.
+### NbtIngredient
 
 #### Forge
 | Property | Type    | Description                                                                                                                                          |
@@ -45,7 +45,7 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
 | `strict`      | boolean      | Should be always `true`                                          |
 
 ---
-`ItemStack` lets you to define the item, count and nbt of the stack
+### ItemStack
 
 | Property           | Type    | Description                                                                                                                                          |
 |--------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -54,7 +54,7 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
 | `nbt` *(Optional)* | `Map`        | A key-value pair of JSON Object for NBT name and value          |
 
 ---
-### Example
+### Example (1.20.1)
 ```json5
 {
   "type": "fletchingrecipe:fletching", // type
