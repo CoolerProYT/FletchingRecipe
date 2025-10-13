@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.115'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.115'
     id 'idea'
 }
 
@@ -30,10 +30,12 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-neoForge {
+legacyForge   {
     version = project.neo_version
+
+    validateAccessTransformers = true
 
     parchment {
         mappingsVersion = project.parchment_mappings_version
@@ -84,13 +86,13 @@ configurations {
 }
 
 dependencies {
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    modCompileOnly("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    modImplementation("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
-    implementation "dev.architectury:architectury-neoforge:${architectury_version}"
-    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
-    compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}"
-    implementation  "me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}"
+    modImplementation("dev.architectury:architectury-forge:${architectury_version}")
+    modImplementation("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-forge:${rei_version}")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-forge:${rei_version}")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -113,7 +115,6 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
     into "build/generated/sources/modMetadata"
 }
 sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
 
 publishing {
     publications {

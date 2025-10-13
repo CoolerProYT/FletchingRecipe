@@ -1,20 +1,22 @@
 package com.coolerpromc.fletchingrecipe.recipe;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
+import com.google.gson.JsonObject;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output) implements Recipe<FletchingRecipeInput> {
+public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output, ResourceLocation id) implements Recipe<FletchingRecipeInput> {
     @Override
     public boolean matches(FletchingRecipeInput fletchingRecipeInput, Level level) {
         return bottom.map(sizedIngredient -> top.test(fletchingRecipeInput.top()) && middle.test(fletchingRecipeInput.middle()) && sizedIngredient.test(fletchingRecipeInput.bottom()))
@@ -22,7 +24,7 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
-    public ItemStack assemble(FletchingRecipeInput fletchingRecipeInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(FletchingRecipeInput fletchingRecipeInput, RegistryAccess registryAccess) {
         return this.output.copy();
     }
 
@@ -32,8 +34,13 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output;
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
+        return output.copy();
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
     }
 
     @Override
@@ -49,27 +56,38 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     public static class Serializer implements RecipeSerializer<FletchingTableRecipe>{
         public static final Serializer INSTANCE = new Serializer();
 
-        public MapCodec<FletchingTableRecipe> codec() {
-            return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    SizedIngredient.NESTED_CODEC.fieldOf("top").forGetter(FletchingTableRecipe::top),
-                    SizedIngredient.NESTED_CODEC.fieldOf("middle").forGetter(FletchingTableRecipe::middle),
-                    SizedIngredient.NESTED_CODEC.optionalFieldOf("bottom").forGetter(FletchingTableRecipe::bottom),
-                    ItemStack.CODEC.fieldOf("output").forGetter(FletchingTableRecipe::output)
-            ).apply(instance, FletchingTableRecipe::new));
+        @Override
+        public FletchingTableRecipe fromJson(ResourceLocation resourceLocation, JsonObject jsonObject) {
+            SizedIngredient top = SizedIngredient.fromJson(jsonObject.getAsJsonObject("top"));
+            SizedIngredient middle = SizedIngredient.fromJson(jsonObject.getAsJsonObject("middle"));
+            Optional<SizedIngredient> bottom = Optional.empty();
+            if (jsonObject.has("bottom")){
+                bottom = Optional.of(SizedIngredient.fromJson(jsonObject.getAsJsonObject("bottom")));
+            }
+            ItemStack output = ShapedRecipe.itemStackFromJson(jsonObject.getAsJsonObject("output"));
+
+            return new FletchingTableRecipe(top, middle, bottom, output, resourceLocation);
         }
 
-        public StreamCodec<RegistryFriendlyByteBuf, FletchingTableRecipe> streamCodec() {
-            return StreamCodec.composite(
-                    SizedIngredient.STREAM_CODEC,
-                    FletchingTableRecipe::top,
-                    SizedIngredient.STREAM_CODEC,
-                    FletchingTableRecipe::middle,
-                    SizedIngredient.STREAM_CODEC.apply(ByteBufCodecs::optional),
-                    FletchingTableRecipe::bottom,
-                    ItemStack.STREAM_CODEC,
-                    FletchingTableRecipe::output,
-                    FletchingTableRecipe::new
-            );
+        @Override
+        public @Nullable FletchingTableRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+            SizedIngredient top = SizedIngredient.fromNetwork(friendlyByteBuf);
+            SizedIngredient middle = SizedIngredient.fromNetwork(friendlyByteBuf);
+            Optional<SizedIngredient> bottom = Optional.empty();
+            if (friendlyByteBuf.readBoolean()){
+                bottom = Optional.of(SizedIngredient.fromNetwork(friendlyByteBuf));
+            }
+            ItemStack output = friendlyByteBuf.readItem();
+            return new FletchingTableRecipe(top, middle, bottom, output, resourceLocation);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf friendlyByteBuf, FletchingTableRecipe recipe) {
+            recipe.top.toNetwork(friendlyByteBuf);
+            recipe.middle.toNetwork(friendlyByteBuf);
+            friendlyByteBuf.writeBoolean(recipe.bottom.isPresent());
+            recipe.bottom.ifPresent(sizedIngredient -> sizedIngredient.toNetwork(friendlyByteBuf));
+            friendlyByteBuf.writeItemStack(recipe.output, true);
         }
     }
 }

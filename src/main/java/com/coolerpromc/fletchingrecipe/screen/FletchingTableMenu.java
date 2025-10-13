@@ -4,7 +4,7 @@ import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingRecipeInput;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.slot.FletchingResultSlot;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final FletchingResultSlot fletchingResultSlot;
 
-    public FletchingTableMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
+    public FletchingTableMenu(int containerId, Inventory playerInventory, FriendlyByteBuf buf) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
@@ -130,17 +129,16 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         FletchingRecipeInput input = new FletchingRecipeInput(craftSlots.getItem(0), craftSlots.getItem(1), craftSlots.getItem(2));
         ServerPlayer serverplayer = (ServerPlayer)player;
         ItemStack itemstack = ItemStack.EMPTY;
-        Optional<RecipeHolder<FletchingTableRecipe>> optional = level.getServer().getRecipeManager().getRecipeFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), input, level);
+        Optional<FletchingTableRecipe> optional = level.getServer().getRecipeManager().getRecipeFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), input, level);
         if (optional.isPresent()) {
-            RecipeHolder<FletchingTableRecipe> recipeholder = optional.get();
-            FletchingTableRecipe recipe = recipeholder.value();
-            if (resultSlots.setRecipeUsed(level, serverplayer, recipeholder)) {
+            FletchingTableRecipe recipe = optional.get();
+            if (resultSlots.setRecipeUsed(level, serverplayer, recipe)) {
                 ItemStack itemstack1 = recipe.assemble(input, level.registryAccess());
                 if (itemstack1.isItemEnabled(level.enabledFeatures())) {
                     itemstack = itemstack1;
                 }
             }
-            fletchingResultSlot.setRecipeHolder(recipeholder);
+            fletchingResultSlot.setRecipe(recipe);
         }
 
         resultSlots.setItem(0, itemstack);

@@ -14,7 +14,6 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
 public class ModJEIPlugin implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "jei_plugin");
+        return new ResourceLocation(FletchingRecipe.MODID, "jei_plugin");
     }
 
     @Override
@@ -41,9 +40,9 @@ public class ModJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<FletchingTableRecipe>> treeSimulatorRecipe = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get());
+        List<FletchingTableRecipe> treeSimulatorRecipe = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get());
 
-        registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe.stream().map(RecipeHolder::value).toList());
+        registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe);
     }
 
     @Override

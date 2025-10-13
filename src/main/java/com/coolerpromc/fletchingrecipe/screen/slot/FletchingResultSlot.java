@@ -1,6 +1,7 @@
 package com.coolerpromc.fletchingrecipe.screen.slot;
 
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
+import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -8,13 +9,11 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 public class FletchingResultSlot extends ResultSlot {
     private final CraftingContainer craftSlots;
     private final AbstractContainerMenu menu;
-    private RecipeHolder<FletchingTableRecipe> recipeHolder = null;
+    private FletchingTableRecipe recipe = null;
 
     public FletchingResultSlot(Player player, CraftingContainer craftSlots, ResultContainer container, int slot, int xPosition, int yPosition, AbstractContainerMenu menu) {
         super(player, craftSlots, container, slot, xPosition, yPosition);
@@ -26,7 +25,7 @@ public class FletchingResultSlot extends ResultSlot {
     public void onTake(Player player, ItemStack stack) {
         this.checkTakeAchievements(stack);
 
-        if (recipeHolder != null && recipeHolder.value() instanceof FletchingTableRecipe recipe) {
+        if (recipe != null) {
             consumeIngredient(craftSlots, 0, recipe.top());
             consumeIngredient(craftSlots, 1, recipe.middle());
 
@@ -53,7 +52,7 @@ public class FletchingResultSlot extends ResultSlot {
         }
     }
 
-    public void setRecipeHolder(RecipeHolder<FletchingTableRecipe> recipeHolder) {
-        this.recipeHolder = recipeHolder;
+    public void setRecipe(FletchingTableRecipe recipe) {
+        this.recipe = recipe;
     }
 }

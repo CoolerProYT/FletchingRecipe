@@ -2,34 +2,32 @@ package com.coolerpromc.fletchingrecipe.datagen;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.datagen.recipebuilder.FletchingRecipeBuilder;
-import net.minecraft.advancements.Criterion;
+import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPredicate;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import net.minecraftforge.common.crafting.StrictNBTIngredient;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class ModRecipeProvider extends RecipeProvider {
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public ModRecipeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput output) {
+    protected void buildRecipes(Consumer<FinishedRecipe> output) {
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.FLINT, 1))
                 .middle(SizedIngredient.of(Items.STICK, 1))
@@ -38,7 +36,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
                 .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
                 .unlockedBy(getHasName(Items.FEATHER), has(Items.FEATHER))
-                .save(output, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/arrow"));
+                .save(output, new ResourceLocation(FletchingRecipe.MODID, "fletching/arrow"));
 
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
@@ -46,27 +44,26 @@ public class ModRecipeProvider extends RecipeProvider {
                 .output(new ItemStack(Items.SPECTRAL_ARROW, 2))
                 .unlockedBy(getHasName(Items.GLOWSTONE_DUST), has(Items.GLOWSTONE_DUST))
                 .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                .save(output, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/spectral_arrow"));
+                .save(output, new ResourceLocation(FletchingRecipe.MODID, "fletching/spectral_arrow"));
 
         BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
-            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+            ItemStack outputStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW, 8), potion.get());
 
             FletchingRecipeBuilder.builder()
-                    .top(new SizedIngredient(DataComponentIngredient.of(true, DataComponentMap.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build(), Items.LINGERING_POTION), 1))
+                    .top(new SizedIngredient(StrictNBTIngredient.of(PotionUtils.setPotion(Items.LINGERING_POTION.getDefaultInstance(), potion.get())), 1))
                     .middle(SizedIngredient.of(Items.ARROW, 8))
                     .output(outputStack)
-                    .unlockedBy(getHasName(Items.LINGERING_POTION, new PotionContents(potion)), has(Items.LINGERING_POTION, new PotionContents(potion)))
+                    .unlockedBy(getHasName(Items.LINGERING_POTION, potion), has(Items.LINGERING_POTION, outputStack.getOrCreateTag()))
                     .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                    .save(output, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/" + potion.getKey().location().getPath() + "_tipped_arrow"));
+                    .save(output, new ResourceLocation(FletchingRecipe.MODID, "fletching/" + potion.unwrapKey().get().location().getPath() + "_tipped_arrow"));
         });
     }
 
-    protected static String getHasName(ItemLike itemLike, PotionContents key) {
-        return "has_" + key.potion().get().getKey().location().getPath() + "_" + getItemName(itemLike);
+    protected static String getHasName(ItemLike itemLike, Holder<Potion> key) {
+        return "has_" + key.unwrapKey().get().location().getPath() + "_" + getItemName(itemLike);
     }
 
-    protected Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike, PotionContents key) {
-        return inventoryTrigger(ItemPredicate.Builder.item().of(itemLike).hasComponents(DataComponentPredicate.builder().expect(DataComponents.POTION_CONTENTS, key).build()).build());
+    protected InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike, CompoundTag key) {
+        return inventoryTrigger(ItemPredicate.Builder.item().of(itemLike).hasNbt(key).build());
     }
 }

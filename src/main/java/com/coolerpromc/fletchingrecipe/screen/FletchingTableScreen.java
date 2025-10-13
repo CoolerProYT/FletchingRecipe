@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class FletchingTableScreen extends AbstractContainerScreen<FletchingTableMenu> {
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
 
     public FletchingTableScreen(FletchingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -16,6 +16,7 @@ public class FletchingTableScreen extends AbstractContainerScreen<FletchingTable
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
+        renderBackground(guiGraphics);
         guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
     }
 

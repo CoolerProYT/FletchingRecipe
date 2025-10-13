@@ -15,10 +15,10 @@ public record FletchingDisplay(FletchingTableRecipe recipe) implements Display {
 
     @Override
     public List<EntryIngredient> getInputEntries() {
-        EntryIngredient top = EntryIngredients.ofItemStacks(Arrays.stream(recipe.top().getItems()).map(stack -> stack.copyWithCount(recipe.top().count())).toList());
-        EntryIngredient middle = EntryIngredients.ofItemStacks(Arrays.stream(recipe.middle().getItems()).map(stack -> stack.copyWithCount(recipe.middle().count())).toList());
+        EntryIngredient top = EntryIngredients.ofItemStacks(Arrays.stream(recipe.top().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.top().count())).toList());
+        EntryIngredient middle = EntryIngredients.ofItemStacks(Arrays.stream(recipe.middle().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.middle().count())).toList());
         if (recipe.bottom().isPresent()){
-            EntryIngredient bottom = EntryIngredients.ofItemStacks(Arrays.stream(recipe.bottom().get().getItems()).map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList());
+            EntryIngredient bottom = EntryIngredients.ofItemStacks(Arrays.stream(recipe.bottom().get().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList());
             return List.of(top, middle, bottom);
         }
         return List.of(top, middle);

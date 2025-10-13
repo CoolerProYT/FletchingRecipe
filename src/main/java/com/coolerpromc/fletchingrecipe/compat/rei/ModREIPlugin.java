@@ -28,6 +28,6 @@ public class ModREIPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), fletchingTableRecipeRecipeHolder -> new FletchingDisplay(fletchingTableRecipeRecipeHolder.value()));
+        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), FletchingDisplay::new);
     }
 }
