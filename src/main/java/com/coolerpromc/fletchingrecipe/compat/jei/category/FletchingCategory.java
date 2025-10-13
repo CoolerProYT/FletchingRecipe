@@ -1,6 +1,7 @@
 package com.coolerpromc.fletchingrecipe.compat.jei.category;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
+import com.coolerpromc.fletchingrecipe.compat.jei.ModJEIPlugin;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -22,11 +23,10 @@ import java.util.Arrays;
 
 public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<FletchingTableRecipe> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
-    public static final RecipeType<FletchingTableRecipe> FLETCHING_TYPE = RecipeType.create(FletchingRecipe.MODID, "fletching", FletchingTableRecipe.class);
 
     @Override
     public RecipeType<FletchingTableRecipe> getRecipeType() {
-        return FLETCHING_TYPE;
+        return ModJEIPlugin.FLETCHING_TYPE;
     }
 
     @Override
@@ -54,5 +54,15 @@ public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<Fl
         }
 
         iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.OUTPUT,104,20).addItemStack(recipe.output());
+    }
+
+    @Override
+    public int getWidth() {
+        return 137;
+    }
+
+    @Override
+    public int getHeight() {
+        return 57;
     }
 }

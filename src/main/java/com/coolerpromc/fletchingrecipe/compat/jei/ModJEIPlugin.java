@@ -8,6 +8,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -20,6 +21,8 @@ import java.util.List;
 
 @JeiPlugin
 public class ModJEIPlugin implements IModPlugin {
+    public static final RecipeType<FletchingTableRecipe> FLETCHING_TYPE = new RecipeType<>(new ResourceLocation(FletchingRecipe.MODID, "fletching"), FletchingTableRecipe.class);
+
     @Override
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(FletchingRecipe.MODID, "jei_plugin");
@@ -35,18 +38,18 @@ public class ModJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), FletchingCategory.FLETCHING_TYPE);
+        registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), FLETCHING_TYPE);
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         List<FletchingTableRecipe> treeSimulatorRecipe = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get());
 
-        registration.addRecipes(FletchingCategory.FLETCHING_TYPE, treeSimulatorRecipe);
+        registration.addRecipes(FLETCHING_TYPE, treeSimulatorRecipe);
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        registration.addRecipeClickArea(FletchingTableScreen.class, 89, 34, 22, 16, FletchingCategory.FLETCHING_TYPE);
+        registration.addRecipeClickArea(FletchingTableScreen.class, 89, 34, 22, 16, FLETCHING_TYPE);
     }
 }
