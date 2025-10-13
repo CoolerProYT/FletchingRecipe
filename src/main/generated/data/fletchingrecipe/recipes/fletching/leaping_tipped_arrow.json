@@ -1,0 +1,29 @@
+{
+  "type": "fletchingrecipe:fletching",
+  "middle": {
+    "count": 8,
+    "ingredient": {
+      "item": "minecraft:arrow"
+    }
+  },
+  "output": {
+    "count": 8,
+    "item": "minecraft:tipped_arrow",
+    "nbt": {
+      "Potion": "minecraft:leaping"
+    }
+  },
+  "top": {
+    "count": 1,
+    "ingredient": {
+      "fabric:type": "fabric:nbt",
+      "base": {
+        "item": "minecraft:lingering_potion"
+      },
+      "nbt": {
+        "Potion": "minecraft:leaping"
+      },
+      "strict": true
+    }
+  }
+}
