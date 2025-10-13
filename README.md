@@ -77,7 +77,7 @@ Each `fletchingrecipe:fletching` recipe uses the following properties:
       "item": "minecraft:arrow"
     }
   },
-  "bottom": { // bottom - forge NBTIngredient example
+  "bottom": { // bottom - forge NBTIngredient example, bottom is optional field
     "count": 1,
     "ingredient": {
       "type": "forge:nbt",
