@@ -5,11 +5,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class FletchingTableScreen extends AbstractContainerScreen<FletchingTableMenu> {
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
 
     public FletchingTableScreen(FletchingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

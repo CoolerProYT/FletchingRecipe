@@ -6,9 +6,9 @@ import com.coolerpromc.fletchingrecipe.util.DataComponentIngredient;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.DataComponentMatchers;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentExactPredicate;
@@ -20,7 +20,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,7 +52,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
                 .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
                 .unlockedBy(getHasName(Items.FEATHER), has(Items.FEATHER))
-                .save(output, ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/arrow")));
+                .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/arrow")));
 
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
@@ -60,7 +60,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .output(new ItemStack(Items.SPECTRAL_ARROW, 2))
                 .unlockedBy(getHasName(Items.GLOWSTONE_DUST), has(Items.GLOWSTONE_DUST))
                 .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                .save(output, ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/spectral_arrow")));
+                .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/spectral_arrow")));
 
         BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
             ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
@@ -72,7 +72,7 @@ public class ModRecipeProvider extends RecipeProvider {
                     .output(outputStack)
                     .unlockedBy(getHasName(Items.LINGERING_POTION, new PotionContents(potion)), has(Items.LINGERING_POTION, new PotionContents(potion)))
                     .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                    .save(output, ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/" + potion.unwrapKey().get().location().getPath() + "_tipped_arrow")));
+                    .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/" + potion.unwrapKey().get().identifier().getPath() + "_tipped_arrow")));
         });
     }
 
