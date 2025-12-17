@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingCategory;
@@ -22,4 +23,4 @@ public class ModREIPlugin implements REIClientPlugin {
     public void registerScreens(ScreenRegistry registry) {
         registry.registerClickArea(screen -> new Rectangle(((screen.width - 176) / 2) + 89, ((screen.height - 166) / 2) + 34, 22, 16), FletchingTableScreen.class, FletchingDisplay.CATEGORY_IDENTIFIER);
     }
-}
+}*/

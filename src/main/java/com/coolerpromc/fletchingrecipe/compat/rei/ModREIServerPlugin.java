@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
@@ -41,3 +42,4 @@ public class ModREIServerPlugin implements REICommonPlugin {
         registry.register(FletchingDisplay.CATEGORY_IDENTIFIER.getIdentifier(), FletchingDisplay.SERIALIZER);
     }
 }
+*/

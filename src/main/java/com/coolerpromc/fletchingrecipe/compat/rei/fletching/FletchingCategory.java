@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei.fletching;
 
 import me.shedaniel.math.Point;
@@ -50,4 +51,4 @@ public class FletchingCategory implements DisplayCategory<FletchingDisplay> {
 
         return widgets;
     }
-}
+}*/

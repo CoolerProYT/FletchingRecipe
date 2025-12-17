@@ -13,15 +13,15 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
 public class FletchingCategory extends AbstractRecipeCategory<RecipeHolder<FletchingTableRecipe>> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching");
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
     public static final IRecipeHolderType<FletchingTableRecipe> FLETCHING_TYPE = IRecipeHolderType.create(FletchingRecipe.FLETCHING_RECIPE_TYPE.get());
 
     public FletchingCategory(IGuiHelper helper) {
