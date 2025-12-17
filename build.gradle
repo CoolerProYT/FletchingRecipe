@@ -1,6 +1,7 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
 version = project.mod_version
@@ -88,4 +89,23 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+publishMods {
+    file.set(remapJar.archiveFile)
+    type = STABLE
+    modLoaders.add("fabric")
+    changelog = file("changelog.md").text
+
+    curseforge {
+        projectId = "1364606"
+        accessToken = findProperty("CF_TOKEN")
+        minecraftVersions.add(minecraft_version)
+    }
+
+    modrinth {
+        projectId = 'nDfK7W8j'
+        accessToken = findProperty("MODRINTH_TOKEN")
+        minecraftVersions.add(minecraft_version)
+    }
 }
