@@ -109,6 +109,7 @@ publishMods {
     type = STABLE
     modLoaders.add("fabric")
     changelog = file("changelog.md").text
+    displayName = "fletchingrecipe-" + mod_version
 
     curseforge {
         projectId = "1364606"
