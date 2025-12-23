@@ -1,6 +1,7 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
 version = project.mod_version
@@ -25,6 +26,17 @@ repositories {
 		name = "Jared's maven"
 		url = "https://maven.blamejared.com/"
 	}
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 fabricApi {
@@ -46,6 +58,9 @@ dependencies {
 	modImplementation "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
 
 	modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api-intermediary:${jei_version}")
+	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
+
+//    modImplementation "maven.modrinth:more-fletching-tables:1.8.2-fabric,1.21.1"
 }
 
 processResources {
@@ -94,4 +109,24 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+publishMods {
+    file.set(remapJar.archiveFile)
+    type = STABLE
+    modLoaders.add("fabric")
+    changelog = file("changelog.md").text
+    displayName = "fletchingrecipe-" + mod_version
+
+    curseforge {
+        projectId = "1364606"
+        accessToken = findProperty("CF_TOKEN")
+        minecraftVersions.add(minecraft_version)
+    }
+
+    modrinth {
+        projectId = 'nDfK7W8j'
+        accessToken = findProperty("MODRINTH_TOKEN")
+        minecraftVersions.add(minecraft_version)
+    }
 }
