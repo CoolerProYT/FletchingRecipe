@@ -4,7 +4,7 @@ import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingRecipeInput;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.slot.FletchingResultSlot;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.FletchingTableBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
@@ -113,7 +113,7 @@ public class FletchingTableMenu extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return canUse(this.access, player, Blocks.FLETCHING_TABLE);
+        return this.access.get((world, pos) -> world.getBlockState(pos).getBlock() instanceof FletchingTableBlock && player.canInteractWithBlockAt(pos, 4.0F), true);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

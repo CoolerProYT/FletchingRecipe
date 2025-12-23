@@ -1,0 +1,1 @@
+- Added compatibility with `More Fletching Tables` mod
