@@ -112,7 +112,7 @@ public class FletchingTableMenu extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.access.get((world, pos) -> world.getBlockState(pos).getBlock() instanceof FletchingTableBlock && player.canInteractWithBlockAt(pos, 4.0F), true);
+        return this.access.get((world, pos) -> world.getBlockState(pos).getBlock() instanceof FletchingTableBlock && player.squaredDistanceTo((double)pos.getX() + (double)0.5F, (double)pos.getY() + (double)0.5F, (double)pos.getZ() + (double)0.5F) <= (double)64.0F, true);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
