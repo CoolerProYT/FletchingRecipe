@@ -42,7 +42,7 @@ public class FletchingRecipe implements ModInitializer {
 
 			if (block instanceof FletchingTableBlock && (player.getMainHandStack().isEmpty() || (!player.getMainHandStack().isEmpty() && !player.isSneaking()))){
 				if (!level.isClient()){
-					player.openHandledScreen(new SimpleNamedScreenHandlerFactory((i, inventory, player1) -> new FletchingTableMenu(i, inventory, ScreenHandlerContext.create(level, pos)), Text.translatable("block.minecraft.fletching_table")));
+					player.openHandledScreen(new SimpleNamedScreenHandlerFactory((i, inventory, player1) -> new FletchingTableMenu(i, inventory, ScreenHandlerContext.create(level, pos)), Text.translatable(block.getTranslationKey())));
 				}
 				return ActionResult.SUCCESS;
 			}
