@@ -144,7 +144,7 @@ idea {
 publishMods {
     file.set(jar.archiveFile)
     type = STABLE
-    modLoaders.add("neoforge")
+    modLoaders.add("forge")
     changelog = file("changelog.md").text
     displayName = mod_id + "-" + mod_version
 

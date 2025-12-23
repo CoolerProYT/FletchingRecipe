@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FletchingTableBlock;
 
 import java.util.Optional;
@@ -109,7 +108,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return access.evaluate((level, pos) -> level.getBlockState(pos).getBlock() instanceof FletchingTableBlock && player.canInteractWithBlock(pos, 4.0F), true);
+        return access.evaluate((level, pos) -> level.getBlockState(pos).getBlock() instanceof FletchingTableBlock && player.distanceToSqr((double) pos.getX() + (double) 0.5F, (double) pos.getY() + (double) 0.5F, (double) pos.getZ() + (double) 0.5F) <= (double) 64.0F, true);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
