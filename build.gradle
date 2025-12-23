@@ -60,7 +60,7 @@ dependencies {
 	modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api-intermediary:${jei_version}")
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
 
-//    modImplementation "maven.modrinth:more-fletching-tables:1.8.2-fabric,1.21.1"
+    modImplementation "maven.modrinth:more-fletching-tables:1.8.2-fabric,1.21.1"
 }
 
 processResources {
