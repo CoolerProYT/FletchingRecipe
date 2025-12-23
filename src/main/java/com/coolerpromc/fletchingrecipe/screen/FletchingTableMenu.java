@@ -1,9 +1,11 @@
 package com.coolerpromc.fletchingrecipe.screen;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
+import com.coolerpromc.fletchingrecipe.compat.morefletchingtable.MoreFletchingTableCheck;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingRecipeInput;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.slot.FletchingResultSlot;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -113,7 +115,7 @@ public class FletchingTableMenu extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return canUse(this.access, player, Blocks.FLETCHING_TABLE);
+        return this.access.get((world, pos) -> ((FabricLoader.getInstance().isModLoaded("lolmft") && MoreFletchingTableCheck.checkBlock(world.getBlockState(pos).getBlock())) || world.getBlockState(pos).getBlock() == Blocks.FLETCHING_TABLE) && player.canInteractWithBlockAt(pos, 4.0F), true);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

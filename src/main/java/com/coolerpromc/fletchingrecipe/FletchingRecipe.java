@@ -1,10 +1,11 @@
 package com.coolerpromc.fletchingrecipe;
 
+import com.coolerpromc.fletchingrecipe.compat.morefletchingtable.MoreFletchingTableCheck;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.recipe.RecipeSerializer;
@@ -41,7 +42,7 @@ public class FletchingRecipe implements ModInitializer {
 			BlockPos pos = blockHitResult.getBlockPos();
 			Block block = level.getBlockState(pos).getBlock();
 
-			if (block == Blocks.FLETCHING_TABLE && (player.getMainHandStack().isEmpty() || (!player.getMainHandStack().isEmpty() && !player.isSneaking()))){
+			if (block == Blocks.FLETCHING_TABLE || (FabricLoader.getInstance().isModLoaded("lolmft") && MoreFletchingTableCheck.checkBlock(block)) && (player.getMainHandStack().isEmpty() || (!player.getMainHandStack().isEmpty() && !player.isSneaking()))){
 				if (!level.isClient()){
 					player.openHandledScreen(new SimpleNamedScreenHandlerFactory((i, inventory, player1) -> new FletchingTableMenu(i, inventory, ScreenHandlerContext.create(level, pos)), Text.translatable("block.minecraft.fletching_table")));
 				}
