@@ -44,7 +44,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .top(SizedIngredient.of(Items.FLINT, 1))
                 .middle(SizedIngredient.of(Items.STICK, 1))
                 .bottom(SizedIngredient.of(Items.FEATHER, 1))
-                .output(new ItemStack(Items.ARROW, 4))
+                .output(new ItemStack(Items.ARROW, 8))
                 .unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
                 .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
                 .unlockedBy(getHasName(Items.FEATHER), has(Items.FEATHER))
@@ -53,23 +53,10 @@ public class ModRecipeProvider extends RecipeProvider {
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
                 .middle(SizedIngredient.of(Items.ARROW, 1))
-                .output(new ItemStack(Items.SPECTRAL_ARROW, 2))
+                .output(new ItemStack(Items.SPECTRAL_ARROW, 4))
                 .unlockedBy(getHasName(Items.GLOWSTONE_DUST), has(Items.GLOWSTONE_DUST))
                 .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
                 .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/spectral_arrow")));
-
-        BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
-            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-
-            FletchingRecipeBuilder.builder()
-                    .top(new SizedIngredient(DataComponentIngredient.of(true, DataComponentMap.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build(), Items.LINGERING_POTION), 1))
-                    .middle(SizedIngredient.of(Items.ARROW, 8))
-                    .output(outputStack)
-                    .unlockedBy(getHasName(Items.LINGERING_POTION, new PotionContents(potion)), has(Items.LINGERING_POTION, new PotionContents(potion)))
-                    .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                    .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching/" + potion.getKey().identifier().getPath() + "_tipped_arrow")));
-        });
     }
 
     protected static String getHasName(ItemLike itemLike, PotionContents key) {
