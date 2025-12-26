@@ -1,9 +1,10 @@
 package com.coolerpromc.fletchingrecipe.screen.slot;
 
+import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
+import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
@@ -13,10 +14,10 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 public class FletchingResultSlot extends ResultSlot {
     private final CraftingContainer craftSlots;
-    private final AbstractContainerMenu menu;
+    private final FletchingTableMenu menu;
     private RecipeHolder<FletchingTableRecipe> recipeHolder = null;
 
-    public FletchingResultSlot(Player player, CraftingContainer craftSlots, ResultContainer container, int slot, int xPosition, int yPosition, AbstractContainerMenu menu) {
+    public FletchingResultSlot(Player player, CraftingContainer craftSlots, ResultContainer container, int slot, int xPosition, int yPosition, FletchingTableMenu menu) {
         super(player, craftSlots, container, slot, xPosition, yPosition);
         this.craftSlots = craftSlots;
         this.menu = menu;
@@ -33,6 +34,21 @@ public class FletchingResultSlot extends ResultSlot {
             if (recipe.bottom().isPresent()) {
                 consumeIngredient(craftSlots, 2, recipe.bottom().get());
             }
+        }
+        else if (menu.isValidTippedRecipe()){
+            menu.consumeTippedArrowIngredients();
+        }
+        else if (menu.hasExplosive()){
+            for (int i = 0; i < this.craftSlots.getContainerSize(); i++) {
+                ItemStack ingredient = this.craftSlots.getItem(i);
+                if (!ingredient.isEmpty()) {
+                    ingredient.shrink(FletchingRecipeConfig.CONFIG.explosiveArrowCraftingAmount.get());
+                    if (ingredient.isEmpty()) {
+                        this.craftSlots.setItem(i, ItemStack.EMPTY);
+                    }
+                }
+            }
+            menu.consumeExplosive();
         }
 
         craftSlots.setChanged();
