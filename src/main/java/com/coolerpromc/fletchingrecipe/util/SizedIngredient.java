@@ -14,25 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
-/**
- * Standard implementation for an ingredient and a count.
- *
- * <p>{@link Ingredient} does not perform count checks, so this class is used to wrap an ingredient with a count,
- * and provide a standard serialization format.
- */
 public final class SizedIngredient {
-    /**
-     * The "nested" codec for {@link SizedIngredient}.
-     *
-     * <p>The count is serialized separately from the rest of the ingredient, for example:
-     *
-     * <pre>{@code
-     * {
-     *     "ingredient": "minecraft:apple",
-     *     "count": 3
-     * }
-     * }</pre>
-     */
     public static final Codec<SizedIngredient> NESTED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Ingredient.CODEC.fieldOf("ingredient").forGetter(SizedIngredient::ingredient),
             optionalFieldAlwaysWrite(ExtraCodecs.POSITIVE_INT, "count", 1).forGetter(SizedIngredient::count))
@@ -45,9 +27,6 @@ public final class SizedIngredient {
             SizedIngredient::count,
             SizedIngredient::new);
 
-    /**
-     * Helper method to create a simple sized ingredient that matches a single item.
-     */
     public static SizedIngredient of(ItemLike item, int count) {
         return new SizedIngredient(Ingredient.of(item), count);
     }
@@ -71,11 +50,6 @@ public final class SizedIngredient {
         return count;
     }
 
-    /**
-     * Performs a size-sensitive test on the given stack.
-     *
-     * @return {@code true} if the stack matches the ingredient and has at least the required count.
-     */
     public boolean test(ItemStack stack) {
         return ingredient.test(stack) && stack.getCount() >= count;
     }
