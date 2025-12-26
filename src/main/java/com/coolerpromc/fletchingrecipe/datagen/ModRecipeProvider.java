@@ -32,7 +32,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .top(SizedIngredient.of(Items.FLINT, 1))
                 .middle(SizedIngredient.of(Items.STICK, 1))
                 .bottom(SizedIngredient.of(Items.FEATHER, 1))
-                .output(new ItemStack(Items.ARROW, 4))
+                .output(new ItemStack(Items.ARROW, 8))
                 .unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
                 .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
                 .unlockedBy(getHasName(Items.FEATHER), has(Items.FEATHER))
@@ -41,22 +41,10 @@ public class ModRecipeProvider extends RecipeProvider {
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
                 .middle(SizedIngredient.of(Items.ARROW, 1))
-                .output(new ItemStack(Items.SPECTRAL_ARROW, 2))
+                .output(new ItemStack(Items.SPECTRAL_ARROW, 4))
                 .unlockedBy(getHasName(Items.GLOWSTONE_DUST), has(Items.GLOWSTONE_DUST))
                 .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
                 .save(output, new ResourceLocation(FletchingRecipe.MODID, "fletching/spectral_arrow"));
-
-        BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-            ItemStack outputStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW, 8), potion.get());
-
-            FletchingRecipeBuilder.builder()
-                    .top(new SizedIngredient(StrictNBTIngredient.of(PotionUtils.setPotion(Items.LINGERING_POTION.getDefaultInstance(), potion.get())), 1))
-                    .middle(SizedIngredient.of(Items.ARROW, 8))
-                    .output(outputStack)
-                    .unlockedBy(getHasName(Items.LINGERING_POTION, potion), has(Items.LINGERING_POTION, outputStack.getOrCreateTag()))
-                    .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
-                    .save(output, new ResourceLocation(FletchingRecipe.MODID, "fletching/" + potion.unwrapKey().get().location().getPath() + "_tipped_arrow"));
-        });
     }
 
     protected static String getHasName(ItemLike itemLike, Holder<Potion> key) {

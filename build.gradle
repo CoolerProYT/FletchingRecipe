@@ -14,6 +14,7 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    mavenLocal()
     maven {
         name = "Jared's maven"
         url = "https://maven.blamejared.com/"
@@ -94,6 +95,8 @@ dependencies {
     modImplementation("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-forge:${rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-forge:${rei_version}")
+
+    modCompileOnly("com.coolerpromc:arrowplus:3.1.0+1.21.11-neoforge")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -120,12 +123,20 @@ sourceSets.main.resources.srcDir generateModMetadata
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
+            groupId = groupId
+            artifactId = mod_id
+            version = mod_version
             from components.java
         }
     }
     repositories {
+        mavenLocal()
         maven {
-            url "file://${project.projectDir}/repo"
+            url = findProperty("repsy_url")
+            credentials {
+                username = findProperty("repsy_username")
+                password = findProperty("repsy_password")
+            }
         }
     }
 }

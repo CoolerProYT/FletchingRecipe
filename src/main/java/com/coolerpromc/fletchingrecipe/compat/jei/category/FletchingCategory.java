@@ -1,8 +1,7 @@
 package com.coolerpromc.fletchingrecipe.compat.jei.category;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.coolerpromc.fletchingrecipe.compat.jei.ModJEIPlugin;
-import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
+import com.coolerpromc.fletchingrecipe.compat.jei.recipe.JeiFletchingRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -19,24 +18,24 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
-public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<FletchingTableRecipe> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<JeiFletchingRecipe> {
+    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final RecipeType<JeiFletchingRecipe> FLETCHING_TYPE = RecipeType.create(UID.getNamespace(), UID.getPath(), JeiFletchingRecipe.class);
 
     @Override
-    public RecipeType<FletchingTableRecipe> getRecipeType() {
-        return ModJEIPlugin.FLETCHING_TYPE;
+    public RecipeType<JeiFletchingRecipe> getRecipeType() {
+        return FLETCHING_TYPE;
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("block.minecraft.fletching_table");
+        return Component.translatable("category.jei.fletching");
     }
 
     @Override
-    public void draw(FletchingTableRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        guiGraphics.blit(TEXTURE, 0, 0, 20, 15, 137, 57);
+    public IDrawable getBackground() {
+        return helper.createDrawable(TEXTURE, 34, 15, 123, 56);
     }
 
     @Override
@@ -45,15 +44,11 @@ public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<Fl
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, FletchingTableRecipe recipeHolder, IFocusGroup iFocusGroup) {
-        FletchingTableRecipe recipe = recipeHolder;
-        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,28,2).addItemStacks(Arrays.stream(recipe.top().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.top().count())).toList());
-        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,28,20).addItemStacks(Arrays.stream(recipe.middle().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.middle().count())).toList());
-        if (recipe.bottom().isPresent()){
-            iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,28,38).addItemStacks(Arrays.stream(recipe.bottom().get().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList());
-        }
-
-        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.OUTPUT,104,20).addItemStack(recipe.output());
+    public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, JeiFletchingRecipe recipe, IFocusGroup iFocusGroup) {
+        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,14,2).addItemStacks(recipe.top());
+        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,14,20).addItemStacks(recipe.middle());
+        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,14,38).addItemStacks(recipe.bottom());
+        iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.OUTPUT,90,20).addItemStack(recipe.output());
     }
 
     @Override
