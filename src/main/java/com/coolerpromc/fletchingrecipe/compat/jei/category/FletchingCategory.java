@@ -19,8 +19,8 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 public record FletchingCategory(IGuiHelper helper) implements IRecipeCategory<JeiFletchingRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "fletching");
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final ResourceLocation UID = new ResourceLocation(FletchingRecipe.MODID, "fletching");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
     public static final RecipeType<JeiFletchingRecipe> FLETCHING_TYPE = RecipeType.create(UID.getNamespace(), UID.getPath(), JeiFletchingRecipe.class);
 
     @Override

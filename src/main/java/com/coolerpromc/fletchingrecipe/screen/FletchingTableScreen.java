@@ -21,7 +21,7 @@ public class FletchingTableScreen extends AbstractContainerScreen<FletchingTable
     @Override
     protected void containerTick() {
         super.containerTick();
-        this.explosionSlotBackground.tick(List.of(ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "item/empty_slot_gunpowder"), ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "item/empty_slot_tnt")));
+        this.explosionSlotBackground.tick(List.of(new ResourceLocation(FletchingRecipe.MODID, "item/empty_slot_gunpowder"), new ResourceLocation(FletchingRecipe.MODID, "item/empty_slot_tnt")));
     }
 
     @Override

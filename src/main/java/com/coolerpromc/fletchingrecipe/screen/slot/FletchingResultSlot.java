@@ -3,6 +3,7 @@ package com.coolerpromc.fletchingrecipe.screen.slot;
 import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
+import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;

@@ -21,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public record ExplosiveCategory(IGuiHelper helper) implements IRecipeCategory<JeiExplosiveRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "explosive");
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
+    public static final ResourceLocation UID = new ResourceLocation(FletchingRecipe.MODID, "explosive");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(FletchingRecipe.MODID, "textures/gui/fletching_table.png");
     public static final RecipeType<JeiExplosiveRecipe> EXPLOSIVE_TYPE = RecipeType.create(UID.getNamespace(), UID.getPath(), JeiExplosiveRecipe.class);
 
     @Override

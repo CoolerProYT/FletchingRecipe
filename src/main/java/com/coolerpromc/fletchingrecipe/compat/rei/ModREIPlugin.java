@@ -1,7 +1,7 @@
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.coolerpromc.fletchingrecipe.compat.arrowplus.ArrowPlusTippedRecipe;
+import com.coolerpromc.fletchingrecipe.compat.arrowplus.ReiTippedRecipe;
 import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveCategory;
 import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveDisplay;
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingCategory;
@@ -20,15 +20,14 @@ import me.shedaniel.rei.api.common.util.EntryIngredients;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.List;
 
@@ -48,16 +47,18 @@ public class ModREIPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), fletchingTableRecipeRecipeHolder -> new FletchingDisplay(fletchingTableRecipeRecipeHolder.value()));
+        registry.registerRecipeFiller(FletchingTableRecipe.class, FletchingRecipe.FLETCHING_RECIPE_TYPE.get(), FletchingDisplay::new);
 
         BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-            if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.register(potion, registry);
+            if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.register(potion, registry);
 
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
-            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+            ItemStack outputStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount()), potion.value());
+
+            CompoundTag tag = new CompoundTag();
+            tag.putString("Potion", BuiltInRegistries.POTION.getKey(potion.value()).toString());
 
             List<EntryIngredient> input = List.of(
-                    EntryIngredients.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build())),
+                    EntryIngredients.of(new ItemStack(Items.LINGERING_POTION, 1, tag)),
                     EntryIngredients.of(new ItemStack(Items.ARROW.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount()))
             );
             List<EntryIngredient> output = List.of(EntryIngredients.of(outputStack));
@@ -68,10 +69,13 @@ public class ModREIPlugin implements REIClientPlugin {
         for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
             ItemStack explosiveIngredient = new ItemStack(holder);
 
+            CompoundTag explosiveTag = new CompoundTag();
+            explosiveTag.putString("explosive", holder.unwrapKey().get().location().toString());
+
             ItemStack arrow = Items.ARROW.getDefaultInstance();
             arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+            arrowOutputStack.setTag(explosiveTag.copy());
             List<EntryIngredient> arrowInput = List.of(
                     EntryIngredients.of(new ItemStack(holder)),
                     EntryIngredients.of(arrow)
@@ -82,7 +86,7 @@ public class ModREIPlugin implements REIClientPlugin {
             ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
             spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+            spectralArrowOutputStack.setTag(explosiveTag.copy());
             List<EntryIngredient> spectralArrowInput = List.of(
                     EntryIngredients.of(new ItemStack(holder)),
                     EntryIngredients.of(spectralArrow)
@@ -90,17 +94,19 @@ public class ModREIPlugin implements REIClientPlugin {
             List<EntryIngredient> spectralArrowOutput = List.of(EntryIngredients.of(spectralArrowOutputStack));
             registry.add(new ExplosiveDisplay(spectralArrowInput, spectralArrowOutput));
 
-            if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, registry);
+            if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.registerExplosive(holder, registry);
 
             BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-                if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, registry);
+                if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.registerExplosiveTipped(potion, holder, registry);
+
+                CompoundTag potionTag = new CompoundTag();
+                explosiveTag.putString("Potion", BuiltInRegistries.POTION.getKey(potion.value()).toString());
 
                 ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+                inputStack.setTag(potionTag.copy());
 
                 ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-                outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+                outputStack.setTag(potionTag.copy().merge(potionTag.copy()));
 
                 List<EntryIngredient> input = List.of(
                         EntryIngredients.of(new ItemStack(holder)),

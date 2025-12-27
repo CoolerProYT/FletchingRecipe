@@ -26,6 +26,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        url = "https://repo.repsy.io/coolerpromc/maven/"
+    }
 }
 
 base {
@@ -88,6 +91,8 @@ configurations {
 }
 
 dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
     modCompileOnly("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     modImplementation("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
@@ -96,7 +101,12 @@ dependencies {
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-forge:${rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-forge:${rei_version}")
 
-    modCompileOnly("com.coolerpromc:arrowplus:3.1.0+1.21.11-neoforge")
+    modImplementation("curse.maven:arrow-1317209:7297200")
+}
+
+mixin {
+    add sourceSets.main, 'fletchingrecipe.mixins.refmap.json'
+    config 'fletchingrecipe.mixins.json'
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -150,6 +160,12 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+jar {
+    manifest.attributes([
+            "MixinConfigs": "fletchingrecipe.mixins.json"
+    ])
 }
 
 publishMods {

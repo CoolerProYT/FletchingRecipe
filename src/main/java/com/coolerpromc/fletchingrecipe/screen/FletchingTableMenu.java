@@ -7,8 +7,8 @@ import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingRecipeInput;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.slot.FletchingResultSlot;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,11 +21,8 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.LingeringPotionItem;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FletchingTableBlock;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.Optional;
 
@@ -191,13 +188,13 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         }
         else if(isValidTippedRecipe()){
             itemstack = createTippedArrows();
-            fletchingResultSlot.setRecipeHolder(null);
+            fletchingResultSlot.setRecipe(null);
         }
         else if (hasExplosive()) {
             ItemStack arrowStack = findSingleArrow(craftSlots);
             if (!arrowStack.isEmpty()) {
                 itemstack = createExplosiveArrow(arrowStack);
-                fletchingResultSlot.setRecipeHolder(null);
+                fletchingResultSlot.setRecipe(null);
             }
         }
 
@@ -207,7 +204,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
     }
 
     private boolean isValidArrowForTipping(ItemStack stack) {
-        if (stack.has(DataComponents.POTION_CONTENTS)) {
+        if (stack.hasTag() && stack.getTag().contains("Potion")) {
             return false;
         }
         if (stack.is(Items.ARROW)) {
@@ -267,8 +264,9 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         }
 
         ItemStack result = arrows.is(Items.ARROW) ? new ItemStack(Items.TIPPED_ARROW, FletchingRecipeConfig.CONFIG.tippedArrowCraftingAmount.get()) : arrows.copyWithCount(FletchingRecipeConfig.CONFIG.tippedArrowCraftingAmount.get());
-        PotionContents potionContents = lingeringPotion.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
-        result.set(DataComponents.POTION_CONTENTS, potionContents);
+        CompoundTag tag = result.getOrCreateTag();
+        tag.putString("Potion", lingeringPotion.getOrCreateTag().getString("Potion"));
+        result.setTag(tag);
 
         return result;
     }
@@ -302,7 +300,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
             ItemStack stack = craftSlots.getItem(i);
             if (!stack.isEmpty()) {
                 itemCount++;
-                if (stack.getItem() instanceof ArrowItem && !stack.has(FletchingRecipe.EXPLOSIVE)) {
+                if (stack.getItem() instanceof ArrowItem && !stack.getOrCreateTag().contains("explosive")) {
                     foundArrow = stack;
                 }
             }
@@ -315,7 +313,9 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         ItemStack result = arrowStack.copy();
         result.setCount(FletchingRecipeConfig.CONFIG.explosiveArrowCraftingAmount.get());
         if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(explosiveSlot.getItem(0).getItemHolder())){
-            result.set(FletchingRecipe.EXPLOSIVE, explosiveSlot.getItem(0).getItemHolder());
+            CompoundTag tag = arrowStack.getOrCreateTag().copy();
+            tag.putString("explosive", explosiveSlot.getItem(0).getItemHolder().unwrapKey().get().location().toString());
+            result.setTag(tag);
         }
         return result;
     }

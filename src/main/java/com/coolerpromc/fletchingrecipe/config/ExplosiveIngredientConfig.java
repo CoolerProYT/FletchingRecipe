@@ -9,7 +9,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
 import java.io.FileReader;
@@ -52,13 +52,10 @@ public class ExplosiveIngredientConfig {
 
         for (Map.Entry<String, Float> entry : explosiveIngredientMap.entrySet()){
             try {
-                ResourceLocation id = ResourceLocation.parse(entry.getKey());
-                Optional<Holder.Reference<Item>> holder = BuiltInRegistries.ITEM.getHolder(id);
+                ResourceLocation id = new ResourceLocation(entry.getKey());
+                Holder.Reference<Item> holder = BuiltInRegistries.ITEM.get(id).builtInRegistryHolder();
 
-                if (holder.isEmpty()){
-                    throw new ItemNotFoundException();
-                }
-                explosiveIngredients.put(holder.get(), entry.getValue());
+                explosiveIngredients.put(holder, entry.getValue());
             }
             catch (ResourceLocationException e){
                 FletchingRecipe.LOGGER.error("[Explosive Ingredient Config] Invalid item id defined: {}", entry.getKey());

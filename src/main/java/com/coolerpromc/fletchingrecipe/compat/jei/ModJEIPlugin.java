@@ -17,17 +17,15 @@ import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +54,7 @@ public class ModJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<JeiFletchingRecipe> fletchingTableRecipes = new ArrayList<>(Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).map(recipe -> {
+        List<JeiFletchingRecipe> fletchingTableRecipes = new ArrayList<>(Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(FletchingRecipe.FLETCHING_RECIPE_TYPE.get()).stream().map(recipe -> {
             List<ItemStack> bottom = List.of();
             if (recipe.bottom().isPresent()){
                 bottom = Arrays.stream(recipe.bottom().get().ingredient().getItems()).map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList();
@@ -72,11 +70,13 @@ public class ModJEIPlugin implements IModPlugin {
         BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
             if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.register(potion, fletchingTableRecipes);
 
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
-            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+            ItemStack outputStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount()), potion.value());
+
+            CompoundTag tag = new CompoundTag();
+            tag.putString("Potion", BuiltInRegistries.POTION.getKey(potion.value()).toString());
 
             JeiFletchingRecipe recipe = new JeiFletchingRecipe(
-                    List.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build())),
+                    List.of(new ItemStack(Items.LINGERING_POTION, 1, tag)),
                     List.of(new ItemStack(Items.ARROW.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount())),
                     List.of(),
                     outputStack
@@ -92,16 +92,19 @@ public class ModJEIPlugin implements IModPlugin {
         for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
             ItemStack explosiveIngredient = new ItemStack(holder);
 
+            CompoundTag explosiveTag = new CompoundTag();
+            explosiveTag.putString("explosive", holder.unwrapKey().get().location().toString());
+
             ItemStack arrow = Items.ARROW.getDefaultInstance();
             arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+            arrowOutputStack.setTag(explosiveTag.copy());
             explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, arrow, arrowOutputStack));
 
             ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
             spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+            spectralArrowOutputStack.setTag(explosiveTag.copy());
             explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, spectralArrow, spectralArrowOutputStack));
 
             if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, explosiveRecipes);
@@ -109,12 +112,14 @@ public class ModJEIPlugin implements IModPlugin {
             BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
                 if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, explosiveRecipes);
 
+                CompoundTag potionTag = new CompoundTag();
+                explosiveTag.putString("Potion", BuiltInRegistries.POTION.getKey(potion.value()).toString());
+
                 ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+                inputStack.setTag(potionTag.copy());
 
                 ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-                outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+                outputStack.setTag(potionTag.copy().merge(potionTag.copy()));
 
                 JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
                         new ItemStack(holder),
@@ -139,6 +144,6 @@ public class ModJEIPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registration.registerSubtypeInterpreter(Items.ARROW, ExplosiveSubtypeInterpreter.INSTANCE);
         registration.registerSubtypeInterpreter(Items.SPECTRAL_ARROW, ExplosiveSubtypeInterpreter.INSTANCE);
-        registration.registerSubtypeInterpreter(Items.TIPPED_ARROW, ExplosiveSubtypeInterpreter.INSTANCE);
+//        registration.registerSubtypeInterpreter(Items.TIPPED_ARROW, ExplosiveSubtypeInterpreter.INSTANCE);
     }
 }

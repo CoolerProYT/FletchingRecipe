@@ -44,10 +44,10 @@ public class ExplosiveCategory implements DisplayCategory<ExplosiveDisplay> {
 
         widgets.add(Widgets.createResultSlotBackground(new Point(bounds.x + 109, bounds.y + 25)));
 
-        widgets.add(Widgets.createSlot(new Point(bounds.x + 10, bounds.y + 25)).entries(display.getInputEntries().getFirst()).markInput());
+        widgets.add(Widgets.createSlot(new Point(bounds.x + 10, bounds.y + 25)).entries(display.getInputEntries().get(0)).markInput());
         widgets.add(Widgets.createSlot(new Point(bounds.x + 36, bounds.y + 7)).entries(display.getInputEntries().get(1)).markInput());
 
-        widgets.add(Widgets.createSlot(new Point(bounds.x + 109, bounds.y + 25)).disableBackground().entries(display.getOutputEntries().getFirst()).markOutput());
+        widgets.add(Widgets.createSlot(new Point(bounds.x + 109, bounds.y + 25)).disableBackground().entries(display.getOutputEntries().get(0)).markOutput());
 
         return widgets;
     }

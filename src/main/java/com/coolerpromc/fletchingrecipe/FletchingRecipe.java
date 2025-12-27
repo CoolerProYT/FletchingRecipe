@@ -5,17 +5,13 @@ import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.network.packet.ClientBoundConfigSyncPacket;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
-import com.coolerpromc.fletchingrecipe.screen.FletchingTableScreen;
+import com.coolerpromc.fletchingrecipe.util.ArrowStack;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -28,7 +24,9 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -36,22 +34,29 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FletchingTableBlock;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.event.entity.living.LivingGetProjectileEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 @SuppressWarnings("NullableProblems")
 @Mod(FletchingRecipe.MODID)
@@ -62,26 +67,28 @@ public class FletchingRecipe {
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
     private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
     private static final DeferredRegister<RecipeType<?>> TYPES = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MODID);
-    private static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
 
     public static final RegistryObject<MenuType<FletchingTableMenu>> FLETCHING_TABLE_MENU = MENU_TYPES.register("fletching_table", () -> IForgeMenuType.create(FletchingTableMenu::new));
     public static final RegistryObject<RecipeType<FletchingTableRecipe>> FLETCHING_RECIPE_TYPE = TYPES.register("fletching", () -> RecipeType.simple(new ResourceLocation(MODID, "fletching")));
     public static final RegistryObject<RecipeSerializer<FletchingTableRecipe>> FLETCHING_RECIPE_SERIALIZER = SERIALIZERS.register("fletching", () -> FletchingTableRecipe.Serializer.INSTANCE);
-    public static final Supplier<DataComponentType<Holder<Item>>> EXPLOSIVE = COMPONENTS.registerComponentType("explosive", builder -> builder.persistent(ITEM_HOLDER_CODEC).networkSynchronized(ByteBufCodecs.holderRegistry(Registries.ITEM)).cacheEncoding());
 
     public FletchingRecipe() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
+        modEventBus.addListener(this::commonSetup);
 
         MENU_TYPES.register(modEventBus);
         SERIALIZERS.register(modEventBus);
         TYPES.register(modEventBus);
-        COMPONENTS.register(modEventBus);
 
         ExplosiveIngredientConfig.load();
         ExplosiveIngredientConfig.startWatcher();
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, FletchingRecipeConfig.CONFIG_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, FletchingRecipeConfig.CONFIG_SPEC);
+    }
+
+    public void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(ClientBoundConfigSyncPacket::register);
     }
 
     @SubscribeEvent
@@ -105,27 +112,57 @@ public class FletchingRecipe {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onLivingGetProjectile(LivingGetProjectileEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ItemStack weapon = event.getProjectileWeaponItemStack();
+        ItemStack fired = event.getProjectileItemStack();
+
+        if (!(fired.is(Items.SPECTRAL_ARROW) || weapon.is(Items.ARROW))) return;
+
+        for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
+            Predicate<ItemStack> predicate = ((ProjectileWeaponItem)weapon.getItem()).getSupportedHeldProjectiles();
+            ItemStack itemstack1 = player.getInventory().getItem(i);
+            if (predicate.test(itemstack1)) {
+                event.setProjectileItemStack(player.getInventory().items.get(i));
+                return;
+            }
+        }
+    }
+
     @SubscribeEvent
     public void onProjectileImpact(ProjectileImpactEvent event) {
         Projectile projectile = event.getProjectile();
-        if (!projectile.level().isClientSide() && projectile instanceof AbstractArrow abstractArrow && abstractArrow.getPickupItemStackOrigin().has(EXPLOSIVE)){
+        ItemStack arrowStack = ItemStack.EMPTY;
+
+        if (!projectile.level().isClientSide() && projectile instanceof AbstractArrow abstractArrow && abstractArrow.getPickupItem().hasTag() && abstractArrow.getPickupItem().getTag().contains("explosive")){
+            arrowStack = abstractArrow.getPickupItem();
+        }
+
+        if(!projectile.level().isClientSide() && projectile instanceof ArrowStack abstractArrow && abstractArrow.getPickupStack().hasTag() && abstractArrow.getPickupStack().getTag().contains("explosive")){
+            arrowStack = abstractArrow.getPickupStack();
+        }
+
+        if (!projectile.level().isClientSide() && projectile instanceof AbstractArrow abstractArrow && !arrowStack.isEmpty()){
             Vec3 pos = event.getRayTraceResult().getLocation();
             float ratio = abstractArrow.isCritArrow() ? 1f : 2f;
-            Holder<Item> explosiveItemHolder = abstractArrow.getPickupItemStackOrigin().get(EXPLOSIVE);
+            Holder<Item> explosiveItemHolder = abstractArrow.level().registryAccess().lookupOrThrow(Registries.ITEM).getOrThrow(ResourceKey.create(Registries.ITEM, new ResourceLocation(arrowStack.getTag().getString("explosive"))));
             abstractArrow.level().explode(null, pos.x, pos.y, pos.z, ExplosiveIngredientConfig.explosiveIngredients.get(explosiveItemHolder) / ratio, Level.ExplosionInteraction.TNT);
             if (event.getRayTraceResult() instanceof EntityHitResult result && result.getEntity() instanceof LivingEntity entity){
                 abstractArrow.doPostHurtEffects(entity);
             }
-            abstractArrow.getPickupItemStackOrigin().shrink(1);
+            arrowStack.shrink(1);
             abstractArrow.remove(Entity.RemovalReason.KILLED);
         }
     }
 
     @SubscribeEvent
     public void onOnDatapackSync(OnDatapackSyncEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer serverPlayer){
+        if (event.getPlayer() != null){
+            ServerPlayer serverPlayer = event.getPlayer();
             FletchingRecipeConfig config = FletchingRecipeConfig.CONFIG;
-            PacketDistributor.sendToPlayer(serverPlayer, new ClientBoundConfigSyncPacket(config.allowExplosiveCrafting.get(), config.tippedArrowCraftingAmount.get(), config.explosiveArrowCraftingAmount.get()));
+            ClientBoundConfigSyncPacket.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ClientBoundConfigSyncPacket(config.allowExplosiveCrafting.get(), config.tippedArrowCraftingAmount.get(), config.explosiveArrowCraftingAmount.get()));
         }
     }
 }
