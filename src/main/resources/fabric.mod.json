@@ -1,46 +1,50 @@
 {
-	"schemaVersion": 1,
-	"id": "fletchingrecipe",
-	"version": "${version}",
-	"name": "FletchingRecipe",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/fletchingrecipe/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.coolerpromc.fletchingrecipe.FletchingRecipe"
-		],
-		"client": [
-			"com.coolerpromc.fletchingrecipe.FletchingRecipeClient"
-		],
-		"fabric-datagen": [
-          "com.coolerpromc.fletchingrecipe.datagen.FletchingRecipeDataGenerator"
-		],
-		"rei_client": [
-			"com.coolerpromc.fletchingrecipe.compat.rei.ModREIPlugin"
-		],
-		"rei_common": [
-			"com.coolerpromc.fletchingrecipe.compat.rei.ModREIServerPlugin"
-		]
-	},
-	"mixins": [
-		"fletchingrecipe.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.17.3",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "fletchingrecipe",
+  "version": "${version}",
+  "name": "FletchingRecipe",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/fletchingrecipe/icon.png",
+  "environment": "*",
+  "accessWidener": "fletchingrecipe.classtweaker",
+  "entrypoints": {
+    "main": [
+      "com.coolerpromc.fletchingrecipe.FletchingRecipe"
+    ],
+    "client": [
+      "com.coolerpromc.fletchingrecipe.FletchingRecipeClient"
+    ],
+    "fabric-datagen": [
+      "com.coolerpromc.fletchingrecipe.datagen.FletchingRecipeDataGenerator"
+    ],
+    "rei_client": [
+      "com.coolerpromc.fletchingrecipe.compat.rei.ModREIPlugin"
+    ],
+    "rei_common": [
+      "com.coolerpromc.fletchingrecipe.compat.rei.ModREIServerPlugin"
+    ],
+    "jei_mod_plugin": [
+      "com.coolerpromc.fletchingrecipe.compat.jei.ModJEIPlugin"
+    ]
+  },
+  "mixins": [
+    "fletchingrecipe.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "recommends": {
+    "arrowplus": ">=3.1.0"
+  }
 }
