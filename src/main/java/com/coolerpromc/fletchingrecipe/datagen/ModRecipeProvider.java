@@ -35,7 +35,7 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .top(SizedIngredient.of(Items.FLINT, 1))
                 .middle(SizedIngredient.of(Items.STICK, 1))
                 .bottom(SizedIngredient.of(Items.FEATHER, 1))
-                .output(new ItemStack(Items.ARROW, 4))
+                .output(new ItemStack(Items.ARROW, 8))
                 .criterion(hasItem(Items.FLINT), conditionsFromItem(Items.FLINT))
                 .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
                 .criterion(hasItem(Items.FEATHER), conditionsFromItem(Items.FEATHER))
@@ -44,23 +44,10 @@ public class ModRecipeProvider extends FabricRecipeProvider {
         FletchingRecipeBuilder.builder()
                 .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
                 .middle(SizedIngredient.of(Items.ARROW, 1))
-                .output(new ItemStack(Items.SPECTRAL_ARROW, 2))
+                .output(new ItemStack(Items.SPECTRAL_ARROW, 4))
                 .criterion(hasItem(Items.GLOWSTONE_DUST), conditionsFromItem(Items.GLOWSTONE_DUST))
                 .criterion(hasItem(Items.ARROW), conditionsFromItem(Items.ARROW))
                 .offerTo(exporter, Identifier.of(FletchingRecipe.MOD_ID, "fletching/spectral_arrow"));
-
-        Registries.POTION.getIndexedEntries().forEach(potion -> {
-            ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
-            outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
-
-            FletchingRecipeBuilder.builder()
-                    .top(new SizedIngredient(new ComponentsIngredient(Ingredient.ofItems(Items.LINGERING_POTION), ComponentChanges.builder().add(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion)).build()).toVanilla(), 1))
-                    .middle(SizedIngredient.of(Items.ARROW, 8))
-                    .output(outputStack)
-                    .criterion(getHasName(Items.LINGERING_POTION, new PotionContentsComponent(potion)), has(Items.LINGERING_POTION, new PotionContentsComponent(potion)))
-                    .criterion(hasItem(Items.ARROW), conditionsFromItem(Items.ARROW))
-                    .offerTo(exporter, Identifier.of(FletchingRecipe.MOD_ID, "fletching/" + potion.getKey().get().getValue().getPath() + "_tipped_arrow"));
-        });
     }
 
     @Override

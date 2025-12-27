@@ -14,6 +14,7 @@
 	"license": "CC0-1.0",
 	"icon": "assets/fletchingrecipe/icon.png",
 	"environment": "*",
+  	"accessWidener": "fletchingrecipe.classtweaker",
 	"entrypoints": {
 		"main": [
 			"com.coolerpromc.fletchingrecipe.FletchingRecipe"
@@ -39,8 +40,5 @@
 		"minecraft": "1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
