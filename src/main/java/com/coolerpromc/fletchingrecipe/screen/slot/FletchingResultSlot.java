@@ -1,6 +1,8 @@
 package com.coolerpromc.fletchingrecipe.screen.slot;
 
+import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
+import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingResultInventory;
@@ -8,15 +10,14 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.CraftingResultSlot;
 
 public class FletchingResultSlot extends CraftingResultSlot {
     private final RecipeInputInventory craftSlots;
-    private final ScreenHandler menu;
+    private final FletchingTableMenu menu;
     private RecipeEntry<FletchingTableRecipe> recipeHolder = null;
 
-    public FletchingResultSlot(PlayerEntity player, RecipeInputInventory craftSlots, CraftingResultInventory container, int slot, int xPosition, int yPosition, ScreenHandler menu) {
+    public FletchingResultSlot(PlayerEntity player, RecipeInputInventory craftSlots, CraftingResultInventory container, int slot, int xPosition, int yPosition, FletchingTableMenu menu) {
         super(player, craftSlots, container, slot, xPosition, yPosition);
         this.craftSlots = craftSlots;
         this.menu = menu;
@@ -33,6 +34,21 @@ public class FletchingResultSlot extends CraftingResultSlot {
             if (recipe.bottom().isPresent()) {
                 consumeIngredient(craftSlots, 2, recipe.bottom().get());
             }
+        }
+        else if (menu.isValidTippedRecipe()){
+            menu.consumeTippedArrowIngredients();
+        }
+        else if (menu.hasExplosive()){
+            for (int i = 0; i < this.craftSlots.size(); i++) {
+                ItemStack ingredient = this.craftSlots.getStack(i);
+                if (!ingredient.isEmpty()) {
+                    ingredient.decrement(FletchingRecipeConfig.explosiveArrowCraftingAmount());
+                    if (ingredient.isEmpty()) {
+                        this.craftSlots.setStack(i, ItemStack.EMPTY);
+                    }
+                }
+            }
+            menu.consumeExplosive();
         }
 
         craftSlots.markDirty();

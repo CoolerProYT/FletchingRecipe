@@ -33,12 +33,19 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven {
+        url = "https://repo.repsy.io/coolerpromc/maven"
+    }
 }
 
 fabricApi {
 	configureDataGeneration {
 		client = true
 	}
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/fletchingrecipe.classtweaker");
 }
 
 dependencies {
@@ -50,10 +57,17 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    modImplementation include("com.electronwill.night-config:core:3.8.1")
+    modImplementation include("com.electronwill.night-config:toml:3.8.1")
+
+    modCompileOnly("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
+    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:${rei_version}"
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
 
-    modImplementation "maven.modrinth:more-fletching-tables:1.8.3-fabric,1.21.11"
+    modCompileOnly "maven.modrinth:more-fletching-tables:1.8.3-fabric,1.21.11"
+    modCompileOnly "com.coolerpromc:arrowplus:3.1.0+1.21.11-fabric"
 }
 
 processResources {
@@ -88,20 +102,24 @@ jar {
 
 // configure the maven publication
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+    publications {
+        register('mavenJava', MavenPublication) {
+            groupId = groupId
+            artifactId = archives_base_name
+            version = mod_version
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+        maven {
+            url = findProperty("repsy_url")
+            credentials {
+                username = findProperty("repsy_username")
+                password = findProperty("repsy_password")
+            }
+        }
+    }
 }
 
 publishMods {

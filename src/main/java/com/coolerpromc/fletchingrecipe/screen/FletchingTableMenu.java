@@ -1,19 +1,24 @@
 package com.coolerpromc.fletchingrecipe.screen;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
+import com.coolerpromc.fletchingrecipe.compat.arrowplus.ArrowCheck;
 import com.coolerpromc.fletchingrecipe.compat.morefletchingtable.MoreFletchingTableCheck;
+import com.coolerpromc.fletchingrecipe.config.ExplosiveIngredientConfig;
+import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingRecipeInput;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.slot.FletchingResultSlot;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.CraftingResultInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.RecipeInputInventory;
+import net.minecraft.inventory.*;
+import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.LingeringPotionItem;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.ScreenHandler;
@@ -27,6 +32,7 @@ import java.util.Optional;
 public class FletchingTableMenu extends ScreenHandler {
     private final PlayerEntity player;
     private final CraftingInventory inputSlots = new CraftingInventory(this, 1, 3);
+    private final Inventory explosiveSlot = new SimpleInventory(1);
     private final CraftingResultInventory resultSlot = new CraftingResultInventory();
     private final ScreenHandlerContext access;
     private final FletchingResultSlot fletchingResultSlot;
@@ -47,6 +53,19 @@ public class FletchingTableMenu extends ScreenHandler {
             this.addSlot(new Slot(inputSlots, i, 48, 17 + i * 18));
         }
 
+        this.addSlot(new Slot(explosiveSlot, 0, 17, 35) {
+            @Override
+            public boolean canInsert(ItemStack stack) {
+                return ExplosiveIngredientConfig.explosiveIngredients.containsKey(stack.getRegistryEntry());
+            }
+
+            @Override
+            public void markDirty() {
+                super.markDirty();
+                onContentChanged(explosiveSlot);
+            }
+        });
+
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
@@ -54,11 +73,24 @@ public class FletchingTableMenu extends ScreenHandler {
     public static final int RESULT_SLOT = 0;
     private static final int CRAFT_SLOT_START = 1;
     private static final int CRAFT_SLOT_END = 4;
-    private static final int INV_SLOT_START = 4;
-    private static final int INV_SLOT_END = 31;
+    private static final int GUNPOWDER_SLOT = 4;
+    private static final int INV_SLOT_START = 5;
+    private static final int INV_SLOT_END = 32;
     private static final int HOTBAR_SLOT_START = INV_SLOT_END;
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int HOTBAR_SLOT_END = HOTBAR_SLOT_START + HOTBAR_SLOT_COUNT;
+
+    public boolean hasExplosive() {
+        return !explosiveSlot.getStack(0).isEmpty() && FletchingRecipeConfig.allowExplosiveCrafting();
+    }
+
+    public void consumeExplosive() {
+        ItemStack gunpowder = explosiveSlot.getStack(0);
+        if (!gunpowder.isEmpty()) {
+            gunpowder.decrement(1);
+            explosiveSlot.markDirty();
+        }
+    }
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int index) {
@@ -75,7 +107,12 @@ public class FletchingTableMenu extends ScreenHandler {
                 slot.onQuickTransfer(original, result);
             }
             else if (index >= INV_SLOT_START && index < HOTBAR_SLOT_END) {
-                if (!this.insertItem(original, CRAFT_SLOT_START, CRAFT_SLOT_END, false)) {
+                if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(original.getRegistryEntry())) {
+                    if (!this.insertItem(original, GUNPOWDER_SLOT, GUNPOWDER_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+                else if (!this.insertItem(original, CRAFT_SLOT_START, CRAFT_SLOT_END, false)) {
                     if (index >= INV_SLOT_START && index < INV_SLOT_END) {
                         if (!this.insertItem(original, HOTBAR_SLOT_START, HOTBAR_SLOT_END, false)) {
                             return ItemStack.EMPTY;
@@ -83,6 +120,11 @@ public class FletchingTableMenu extends ScreenHandler {
                     } else if (!this.insertItem(original, INV_SLOT_START, INV_SLOT_END, false)) {
                         return ItemStack.EMPTY;
                     }
+                }
+            }
+            else if (index == GUNPOWDER_SLOT) {
+                if (!this.insertItem(original, INV_SLOT_START, HOTBAR_SLOT_END, false)) {
+                    return ItemStack.EMPTY;
                 }
             }
             else if (index >= CRAFT_SLOT_START && index < CRAFT_SLOT_END) {
@@ -148,10 +190,135 @@ public class FletchingTableMenu extends ScreenHandler {
             }
             fletchingResultSlot.setRecipeHolder(recipeholder);
         }
+        else if(isValidTippedRecipe()){
+            itemstack = createTippedArrows();
+            fletchingResultSlot.setRecipeHolder(null);
+        }
+        else if (hasExplosive()) {
+            ItemStack arrowStack = findSingleArrow(craftSlots);
+            if (!arrowStack.isEmpty()) {
+                itemstack = createExplosiveArrow(arrowStack);
+                fletchingResultSlot.setRecipeHolder(null);
+            }
+        }
 
         resultSlots.setStack(0, itemstack);
         this.setReceivedStack(0, itemstack);
         serverplayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, this.nextRevision(), 0, itemstack));
+    }
+
+    private boolean isValidArrowForTipping(ItemStack stack) {
+        if (stack.contains(DataComponentTypes.POTION_CONTENTS)) {
+            return false;
+        }
+        if (stack.isOf(Items.ARROW)) {
+            return true;
+        }
+        if (FabricLoader.getInstance().isModLoaded("arrowplus")) {
+            return ArrowCheck.check(stack);
+        }
+
+        return false;
+    }
+
+    public boolean isValidTippedRecipe(){
+        ItemStack lingeringPotionItem = ItemStack.EMPTY;
+        ItemStack arrowItem = ItemStack.EMPTY;
+        int filledCount = 0;
+
+        for (int i = 0; i < this.inputSlots.size(); i++){
+            ItemStack stack = inputSlots.getStack(i);
+            if (!stack.isEmpty()) filledCount++;
+
+            if (stack.getItem() instanceof LingeringPotionItem){
+                lingeringPotionItem = stack;
+            }
+            else if (isValidArrowForTipping(stack)){
+                arrowItem = stack;
+            }
+        }
+
+        if (filledCount > 2){
+            return false;
+        }
+
+        if (!lingeringPotionItem.isEmpty() && !arrowItem.isEmpty()){
+            return arrowItem.getCount() >= FletchingRecipeConfig.tippedArrowCraftingAmount();
+        }
+
+        return false;
+    }
+
+    private ItemStack createTippedArrows() {
+        ItemStack lingeringPotion = ItemStack.EMPTY;
+        ItemStack arrows = ItemStack.EMPTY;
+
+        for (int i = 0; i < this.inputSlots.size(); i++){
+            ItemStack stack = inputSlots.getStack(i);
+            if (stack.getItem() instanceof LingeringPotionItem){
+                lingeringPotion = stack;
+            }
+            else if (isValidArrowForTipping(stack)){
+                arrows = stack;
+            }
+        }
+
+        if (lingeringPotion.isEmpty() || arrows.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack result = arrows.isOf(Items.ARROW) ? new ItemStack(Items.TIPPED_ARROW, FletchingRecipeConfig.tippedArrowCraftingAmount()) : arrows.copyWithCount(FletchingRecipeConfig.tippedArrowCraftingAmount());
+        PotionContentsComponent potionContents = lingeringPotion.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+        result.set(DataComponentTypes.POTION_CONTENTS, potionContents);
+
+        return result;
+    }
+
+    public void consumeTippedArrowIngredients() {
+        int arrowsNeeded = FletchingRecipeConfig.tippedArrowCraftingAmount();
+
+        for (int i = 0; i < this.inputSlots.size(); i++){
+            ItemStack stack = inputSlots.getStack(i);
+            if (stack.getItem() instanceof LingeringPotionItem){
+                stack.decrement(1);
+                if (stack.isEmpty()) {
+                    inputSlots.setStack(i, ItemStack.EMPTY);
+                }
+            }
+            else if (isValidArrowForTipping(stack)){
+                stack.decrement(arrowsNeeded);
+                if (stack.isEmpty()) {
+                    inputSlots.setStack(i, ItemStack.EMPTY);
+                }
+            }
+        }
+        inputSlots.markDirty();
+    }
+
+    private ItemStack findSingleArrow(RecipeInputInventory craftSlots) {
+        ItemStack foundArrow = ItemStack.EMPTY;
+        int itemCount = 0;
+
+        for (int i = 0; i < craftSlots.size(); i++) {
+            ItemStack stack = craftSlots.getStack(i);
+            if (!stack.isEmpty()) {
+                itemCount++;
+                if (stack.getItem() instanceof ArrowItem && !stack.contains(FletchingRecipe.EXPLOSIVE)) {
+                    foundArrow = stack;
+                }
+            }
+        }
+
+        return itemCount == 1 && foundArrow.getCount() >= FletchingRecipeConfig.explosiveArrowCraftingAmount() ? foundArrow : ItemStack.EMPTY;
+    }
+
+    private ItemStack createExplosiveArrow(ItemStack arrowStack) {
+        ItemStack result = arrowStack.copy();
+        result.setCount(FletchingRecipeConfig.explosiveArrowCraftingAmount());
+        if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(explosiveSlot.getStack(0).getRegistryEntry())){
+            result.set(FletchingRecipe.EXPLOSIVE, explosiveSlot.getStack(0).getRegistryEntry());
+        }
+        return result;
     }
 
     @Override
@@ -166,6 +333,9 @@ public class FletchingTableMenu extends ScreenHandler {
     @Override
     public void onClosed(PlayerEntity player) {
         super.onClosed(player);
-        this.access.run((p_39371_, p_39372_) -> this.dropInventory(player, this.inputSlots));
+        this.access.run((p_39371_, p_39372_) -> {
+            this.dropInventory(player, this.inputSlots);
+            this.dropInventory(player, this.explosiveSlot);
+        });
     }
 }

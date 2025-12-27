@@ -1,6 +1,7 @@
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
+import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveDisplay;
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingDisplay;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import me.shedaniel.rei.api.common.display.DisplaySerializerRegistry;
@@ -38,5 +39,6 @@ public class ModREIServerPlugin implements REICommonPlugin {
     @Override
     public void registerDisplaySerializer(DisplaySerializerRegistry registry) {
         registry.register(FletchingDisplay.CATEGORY_IDENTIFIER.getIdentifier(), FletchingDisplay.SERIALIZER);
+        registry.register(ExplosiveDisplay.CATEGORY_IDENTIFIER.getIdentifier(), ExplosiveDisplay.SERIALIZER);
     }
 }
