@@ -1,1 +1,1 @@
-- Fixed JEI not working when Arrow+ installed
+- Fixed JREI not working when Arrow+ installed
