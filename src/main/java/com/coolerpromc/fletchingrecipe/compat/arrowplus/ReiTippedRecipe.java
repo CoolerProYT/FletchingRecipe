@@ -8,9 +8,9 @@ import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveDisplay;
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingDisplay;
 import com.coolerpromc.fletchingrecipe.network.packet.ClientBoundConfigSyncPacket;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
+import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
-import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -25,7 +25,7 @@ import java.util.List;
 public class ReiTippedRecipe {
     public static void register(Holder<Potion> holder, DisplayRegistry registry){
         if (!holder.value().getEffects().isEmpty()){
-            RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
+            BasicDisplay.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
                 ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
                 outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
@@ -42,7 +42,7 @@ public class ReiTippedRecipe {
     }
 
     public static void registerExplosive(Holder<Item> explosiveIngredient, DisplayRegistry registry){
-        RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
+        BasicDisplay.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
             ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
             outputStack.set(FletchingRecipe.EXPLOSIVE, explosiveIngredient);
@@ -59,7 +59,7 @@ public class ReiTippedRecipe {
 
     public static void registerExplosiveTipped(Holder<Potion> holder, Holder<Item> explosiveIngredient, DisplayRegistry registry){
         if (!holder.value().getEffects().isEmpty()){
-            RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
+            BasicDisplay.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
                 ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
                 outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
