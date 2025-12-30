@@ -4,8 +4,6 @@ import com.coolerpromc.arrowplus.datacomponent.ModDataComponents;
 import com.coolerpromc.arrowplus.item.ModItems;
 import com.coolerpromc.arrowplus.registry.ModRegistries;
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.coolerpromc.fletchingrecipe.compat.jei.recipe.JeiExplosiveRecipe;
-import com.coolerpromc.fletchingrecipe.compat.jei.recipe.JeiFletchingRecipe;
 import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveDisplay;
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingDisplay;
 import com.coolerpromc.fletchingrecipe.network.packet.ClientBoundConfigSyncPacket;
