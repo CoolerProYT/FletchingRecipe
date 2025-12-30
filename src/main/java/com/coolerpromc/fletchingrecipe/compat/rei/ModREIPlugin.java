@@ -1,7 +1,7 @@
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import com.coolerpromc.fletchingrecipe.compat.arrowplus.ArrowPlusTippedRecipe;
+import com.coolerpromc.fletchingrecipe.compat.arrowplus.ReiTippedRecipe;
 import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveCategory;
 import com.coolerpromc.fletchingrecipe.compat.rei.explosive.ExplosiveDisplay;
 import com.coolerpromc.fletchingrecipe.compat.rei.fletching.FletchingCategory;
@@ -48,7 +48,7 @@ public class ModREIPlugin implements REIClientPlugin {
     @Override
     public void registerDisplays(DisplayRegistry registry) {
         BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-            if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.register(potion, registry);
+            if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.register(potion, registry);
 
             ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
             outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
@@ -87,10 +87,10 @@ public class ModREIPlugin implements REIClientPlugin {
             List<EntryIngredient> spectralArrowOutput = List.of(EntryIngredients.of(spectralArrowOutputStack));
             registry.add(new ExplosiveDisplay(spectralArrowInput, spectralArrowOutput));
 
-            if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, registry);
+            if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.registerExplosive(holder, registry);
 
             BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-                if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, registry);
+                if (ModList.get().isLoaded("arrowplus")) ReiTippedRecipe.registerExplosiveTipped(potion, holder, registry);
 
                 ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
                 inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));

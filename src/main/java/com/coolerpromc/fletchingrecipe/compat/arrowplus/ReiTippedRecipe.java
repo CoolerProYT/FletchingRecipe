@@ -24,43 +24,42 @@ import net.minecraft.world.item.alchemy.PotionContents;
 
 import java.util.List;
 
-public class ArrowPlusTippedRecipe {
-    public static void register(Holder<Potion> holder, List<JeiFletchingRecipe> list){
+public class ReiTippedRecipe {
+    public static void register(Holder<Potion> holder, DisplayRegistry registry){
         if (!holder.value().getEffects().isEmpty()){
             RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
                 ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
                 outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
 
-                JeiFletchingRecipe recipe = new JeiFletchingRecipe(
-                        List.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build())),
-                        List.of(new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build())),
-                        List.of(),
-                        outputStack
+                List<EntryIngredient> input = List.of(
+                        EntryIngredients.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build())),
+                        EntryIngredients.of(new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build()))
                 );
+                List<EntryIngredient> output = List.of(EntryIngredients.of(outputStack));
 
-                list.add(recipe);
+                registry.add(new FletchingDisplay(input, output));
             });
         }
     }
 
-    public static void registerExplosive(Holder<Item> explosiveIngredient, List<JeiExplosiveRecipe> list){
+    public static void registerExplosive(Holder<Item> explosiveIngredient, DisplayRegistry registry){
         RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
             ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
             outputStack.set(FletchingRecipe.EXPLOSIVE, explosiveIngredient);
 
-            JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
-                    new ItemStack(explosiveIngredient, 1),
-                    new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build()),
-                    outputStack
+            List<EntryIngredient> input = List.of(
+                    EntryIngredients.of(new ItemStack(explosiveIngredient, 1)),
+                    EntryIngredients.of(new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build()))
             );
+            List<EntryIngredient> output = List.of(EntryIngredients.of(outputStack));
 
-            list.add(recipe);
+            registry.add(new ExplosiveDisplay(input, output));
         });
     }
 
-    public static void registerExplosiveTipped(Holder<Potion> holder, Holder<Item> explosiveIngredient, List<JeiExplosiveRecipe> list){
+    public static void registerExplosiveTipped(Holder<Potion> holder, Holder<Item> explosiveIngredient, DisplayRegistry registry){
         if (!holder.value().getEffects().isEmpty()){
             RegistryUtil.getRegistry(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
                 ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
@@ -68,13 +67,13 @@ public class ArrowPlusTippedRecipe {
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
                 outputStack.set(FletchingRecipe.EXPLOSIVE, explosiveIngredient);
 
-                JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
-                        new ItemStack(explosiveIngredient, 1),
-                        new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build()),
-                        outputStack
+                List<EntryIngredient> input = List.of(
+                        EntryIngredients.of(new ItemStack(explosiveIngredient, 1)),
+                        EntryIngredients.of(new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build()))
                 );
+                List<EntryIngredient> output = List.of(EntryIngredients.of(outputStack));
 
-                list.add(recipe);
+                registry.add(new ExplosiveDisplay(input, output));
             });
         }
     }
