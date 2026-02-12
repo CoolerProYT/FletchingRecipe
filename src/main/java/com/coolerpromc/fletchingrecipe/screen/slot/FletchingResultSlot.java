@@ -4,28 +4,28 @@ import com.coolerpromc.fletchingrecipe.config.FletchingRecipeConfig;
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableMenu;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingResultInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.screen.slot.CraftingResultSlot;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
-public class FletchingResultSlot extends CraftingResultSlot {
-    private final RecipeInputInventory craftSlots;
+public class FletchingResultSlot extends ResultSlot {
+    private final CraftingContainer craftSlots;
     private final FletchingTableMenu menu;
-    private RecipeEntry<FletchingTableRecipe> recipeHolder = null;
+    private RecipeHolder<FletchingTableRecipe> recipeHolder = null;
 
-    public FletchingResultSlot(PlayerEntity player, RecipeInputInventory craftSlots, CraftingResultInventory container, int slot, int xPosition, int yPosition, FletchingTableMenu menu) {
+    public FletchingResultSlot(Player player, CraftingContainer craftSlots, ResultContainer container, int slot, int xPosition, int yPosition, FletchingTableMenu menu) {
         super(player, craftSlots, container, slot, xPosition, yPosition);
         this.craftSlots = craftSlots;
         this.menu = menu;
     }
 
     @Override
-    public void onTakeItem(PlayerEntity player, ItemStack stack) {
-        this.onCrafted(stack);
+    public void onTake(Player player, ItemStack stack) {
+        this.checkTakeAchievements(stack);
 
         if (recipeHolder != null && recipeHolder.value() instanceof FletchingTableRecipe recipe) {
             consumeIngredient(craftSlots, 0, recipe.top());
@@ -39,37 +39,37 @@ public class FletchingResultSlot extends CraftingResultSlot {
             menu.consumeTippedArrowIngredients();
         }
         else if (menu.hasExplosive()){
-            for (int i = 0; i < this.craftSlots.size(); i++) {
-                ItemStack ingredient = this.craftSlots.getStack(i);
+            for (int i = 0; i < this.craftSlots.getContainerSize(); i++) {
+                ItemStack ingredient = this.craftSlots.getItem(i);
                 if (!ingredient.isEmpty()) {
-                    ingredient.decrement(FletchingRecipeConfig.explosiveArrowCraftingAmount());
+                    ingredient.shrink(FletchingRecipeConfig.explosiveArrowCraftingAmount());
                     if (ingredient.isEmpty()) {
-                        this.craftSlots.setStack(i, ItemStack.EMPTY);
+                        this.craftSlots.setItem(i, ItemStack.EMPTY);
                     }
                 }
             }
             menu.consumeExplosive();
         }
 
-        craftSlots.markDirty();
-        menu.onContentChanged(craftSlots);
+        craftSlots.setChanged();
+        menu.slotsChanged(craftSlots);
     }
 
-    private void consumeIngredient(Inventory container, int slotIndex, SizedIngredient ingredient) {
-        ItemStack slotStack = container.getStack(slotIndex);
+    private void consumeIngredient(Container container, int slotIndex, SizedIngredient ingredient) {
+        ItemStack slotStack = container.getItem(slotIndex);
         if (slotStack.isEmpty()) return;
 
         int consumeCount = ingredient.count();
 
-        slotStack.decrement(consumeCount);
+        slotStack.shrink(consumeCount);
         if (slotStack.isEmpty()) {
-            container.setStack(slotIndex, ItemStack.EMPTY);
+            container.setItem(slotIndex, ItemStack.EMPTY);
         } else {
-            container.markDirty();
+            container.setChanged();
         }
     }
 
-    public void setRecipeHolder(RecipeEntry<FletchingTableRecipe> recipeHolder) {
+    public void setRecipeHolder(RecipeHolder<FletchingTableRecipe> recipeHolder) {
         this.recipeHolder = recipeHolder;
     }
 }

@@ -2,19 +2,6 @@ package com.coolerpromc.fletchingrecipe.mixin;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.config.ExplosiveIngredientConfig;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ProjectileDeflection;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.Item;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,50 +12,63 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-@Mixin(PersistentProjectileEntity.class)
-public abstract class ProjectileMixin extends ProjectileEntity {
-    public ProjectileMixin(EntityType<? extends ProjectileEntity> entityType, World world) {
+@Mixin(AbstractArrow.class)
+public abstract class ProjectileMixin extends Projectile {
+    public ProjectileMixin(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
     @Shadow
-    protected abstract Collection<EntityHitResult> collectPiercingCollisions(Vec3d from, Vec3d to);
+    protected abstract Collection<EntityHitResult> findHitEntities(Vec3 from, Vec3 to);
 
     @Shadow
     public abstract byte getPierceLevel();
 
     @Shadow
-    protected abstract ProjectileDeflection hitOrDeflect(Collection<EntityHitResult> hitResults);
+    protected abstract ProjectileDeflection hitTargetsOrDeflectSelf(Collection<EntityHitResult> hitResults);
 
-    @Inject(method = "applyCollision", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "stepMoveAndHit", at = @At("HEAD"), cancellable = true)
     private void onBlockHit(BlockHitResult blockHitResult, CallbackInfo ci) {
         while(true) {
             if (this.isAlive()) {
-                Vec3d vec3d = this.getEntityPos();
-                ArrayList<EntityHitResult> arrayList = new ArrayList<>(this.collectPiercingCollisions(vec3d, blockHitResult.getPos()));
-                arrayList.sort(Comparator.comparingDouble((entityHitResultx) -> vec3d.squaredDistanceTo(entityHitResultx.getEntity().getEntityPos())));
+                Vec3 vec3d = this.position();
+                ArrayList<EntityHitResult> arrayList = new ArrayList<>(this.findHitEntities(vec3d, blockHitResult.getLocation()));
+                arrayList.sort(Comparator.comparingDouble((entityHitResultx) -> vec3d.distanceToSqr(entityHitResultx.getEntity().position())));
                 EntityHitResult entityHitResult = arrayList.isEmpty() ? null : arrayList.getFirst();
-                Vec3d vec3d2 = Objects.requireNonNullElse(entityHitResult, blockHitResult).getPos();
-                this.setPosition(vec3d2);
-                this.tickBlockCollision(vec3d, vec3d2);
-                if (this.portalManager != null && this.portalManager.isInPortal()) {
-                    this.tickPortalTeleportation();
+                Vec3 vec3d2 = Objects.requireNonNullElse(entityHitResult, blockHitResult).getLocation();
+                this.setPos(vec3d2);
+                this.applyEffectsFromBlocks(vec3d, vec3d2);
+                if (this.portalProcess != null && this.portalProcess.isInsidePortalThisTick()) {
+                    this.handlePortal();
                 }
 
                 if (arrayList.isEmpty()) {
                     if (this.isAlive() && blockHitResult.getType() != HitResult.Type.MISS && ! onProjectileImpact(this, blockHitResult)) {
-                        this.hitOrDeflect(blockHitResult);
-                        this.velocityDirty = true;
+                        this.hitTargetOrDeflectSelf(blockHitResult);
+                        this.needsSync = true;
                     }
                 } else {
-                    if (!this.isAlive() || this.noClip || entityHitResult.getType() == HitResult.Type.MISS) {
+                    if (!this.isAlive() || this.noPhysics || entityHitResult.getType() == HitResult.Type.MISS) {
                         continue;
                     }
 
                     if(!onProjectileImpact(this, entityHitResult)){
-                        ProjectileDeflection projectileDeflection = this.hitOrDeflect(arrayList);
-                        this.velocityDirty = true;
+                        ProjectileDeflection projectileDeflection = this.hitTargetsOrDeflectSelf(arrayList);
+                        this.needsSync = true;
                         if (this.getPierceLevel() > 0 && projectileDeflection == ProjectileDeflection.NONE) {
                             continue;
                         }
@@ -81,16 +81,16 @@ public abstract class ProjectileMixin extends ProjectileEntity {
         }
     }
 
-    private static boolean onProjectileImpact(ProjectileEntity projectile, HitResult hitResult){
-        if (!projectile.getEntityWorld().isClient() && projectile instanceof PersistentProjectileEntity abstractArrow && abstractArrow.getItemStack().contains(FletchingRecipe.EXPLOSIVE)){
-            Vec3d pos = hitResult.getPos();
-            float ratio = abstractArrow.isCritical() ? 1f : 2f;
-            RegistryEntry<Item> explosiveItemHolder = abstractArrow.getItemStack().get(FletchingRecipe.EXPLOSIVE);
-            abstractArrow.getEntityWorld().createExplosion(null, pos.x, pos.y, pos.z, ExplosiveIngredientConfig.explosiveIngredients.get(explosiveItemHolder) / ratio, World.ExplosionSourceType.TNT);
-            if (hitResult instanceof EntityHitResult result && result.getEntity().getEntity() instanceof LivingEntity entity){
-                abstractArrow.onHit(entity);
+    private static boolean onProjectileImpact(Projectile projectile, HitResult hitResult){
+        if (!projectile.level().isClientSide() && projectile instanceof AbstractArrow abstractArrow && abstractArrow.getPickupItemStackOrigin().has(FletchingRecipe.EXPLOSIVE)){
+            Vec3 pos = hitResult.getLocation();
+            float ratio = abstractArrow.isCritArrow() ? 1f : 2f;
+            Holder<Item> explosiveItemHolder = abstractArrow.getPickupItemStackOrigin().get(FletchingRecipe.EXPLOSIVE);
+            abstractArrow.level().explode(null, pos.x, pos.y, pos.z, ExplosiveIngredientConfig.explosiveIngredients.get(explosiveItemHolder) / ratio, Level.ExplosionInteraction.TNT);
+            if (hitResult instanceof EntityHitResult result && result.getEntity().asLivingEntity() instanceof LivingEntity entity){
+                abstractArrow.doPostHurtEffects(entity);
             }
-            abstractArrow.getItemStack().decrement(1);
+            abstractArrow.getPickupItemStackOrigin().shrink(1);
             abstractArrow.remove(Entity.RemovalReason.KILLED);
         }
 

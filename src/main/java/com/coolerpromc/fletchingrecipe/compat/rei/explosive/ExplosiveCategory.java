@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei.explosive;
 
 import me.shedaniel.math.Point;
@@ -8,9 +9,8 @@ import me.shedaniel.rei.api.client.gui.widgets.Widgets;
 import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
-import net.minecraft.block.Blocks;
-import net.minecraft.text.Text;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Blocks;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +21,8 @@ public class ExplosiveCategory implements DisplayCategory<ExplosiveDisplay> {
     }
 
     @Override
-    public Text getTitle() {
-        return Text.translatable("block.minecraft.fletching_table");
+    public Component getTitle() {
+        return Component.translatable("block.minecraft.fletching_table");
     }
 
     @Override
@@ -51,4 +51,4 @@ public class ExplosiveCategory implements DisplayCategory<ExplosiveDisplay> {
 
         return widgets;
     }
-}
+}*/

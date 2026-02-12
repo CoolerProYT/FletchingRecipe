@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
@@ -18,16 +19,15 @@ import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Blocks;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.block.Blocks;
 import java.util.List;
 
 public class ModREIPlugin implements REIClientPlugin {
@@ -45,25 +45,25 @@ public class ModREIPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        Registries.POTION.getIndexedEntries().forEach(potion -> {
+        BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
             if (FabricLoader.getInstance().isModLoaded("arrowplus")) ReiTippedRecipe.register(potion, registry);
 
             ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
-            outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
 
             List<EntryIngredient> input = List.of(
-                    EntryIngredients.of(new ItemStack(Items.LINGERING_POTION.getRegistryEntry(), 1, ComponentChanges.builder().add(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion)).build())),
-                    EntryIngredients.of(new ItemStack(Items.ARROW.getRegistryEntry(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount()))
+                    EntryIngredients.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build())),
+                    EntryIngredients.of(new ItemStack(Items.ARROW.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount()))
             );
             List<EntryIngredient> output = List.of(EntryIngredients.of(outputStack));
 
             registry.add(new FletchingDisplay(input, output));
         });
 
-        for (RegistryEntry<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
+        for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
             ItemStack explosiveIngredient = new ItemStack(holder);
 
-            ItemStack arrow = Items.ARROW.getDefaultStack();
+            ItemStack arrow = Items.ARROW.getDefaultInstance();
             arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
@@ -74,7 +74,7 @@ public class ModREIPlugin implements REIClientPlugin {
             List<EntryIngredient> arrowOutput = List.of(EntryIngredients.of(arrowOutputStack));
             registry.add(new ExplosiveDisplay(arrowInput, arrowOutput));
 
-            ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultStack();
+            ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
             spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
@@ -87,14 +87,14 @@ public class ModREIPlugin implements REIClientPlugin {
 
             if (FabricLoader.getInstance().isModLoaded("arrowplus")) ReiTippedRecipe.registerExplosive(holder, registry);
 
-            Registries.POTION.getIndexedEntries().forEach(potion -> {
+            BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
                 if (FabricLoader.getInstance().isModLoaded("arrowplus")) ReiTippedRecipe.registerExplosiveTipped(potion, holder, registry);
 
                 ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                inputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+                inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
 
                 ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+                outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
                 outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
 
                 List<EntryIngredient> input = List.of(
@@ -107,4 +107,4 @@ public class ModREIPlugin implements REIClientPlugin {
             });
         }
     }
-}
+}*/

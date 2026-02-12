@@ -10,27 +10,26 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import java.util.List;
 
 public class ExplosiveCategory extends AbstractRecipeCategory<JeiExplosiveRecipe> {
-    public static final Identifier UID = Identifier.of(FletchingRecipe.MOD_ID, "explosive");
-    public static final Identifier TEXTURE = Identifier.of(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "explosive");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
     public static final IRecipeType<JeiExplosiveRecipe> EXPLOSIVE_TYPE = IRecipeType.create(UID, JeiExplosiveRecipe.class);
 
     public ExplosiveCategory(IGuiHelper helper) {
-        super(EXPLOSIVE_TYPE, Text.translatable("category.jei.explosive_arrow"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 140, 56);
+        super(EXPLOSIVE_TYPE, Component.translatable("category.jei.explosive_arrow"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 140, 56);
     }
 
     @Override
-    public void draw(JeiExplosiveRecipe recipe, IRecipeSlotsView recipeSlotsView, DrawContext guiGraphics, double mouseX, double mouseY) {
-        guiGraphics.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 10, 15, 140, 56, 256, 256);
+    public void draw(JeiExplosiveRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 10, 15, 140, 56, 256, 256);
     }
 
     @Override

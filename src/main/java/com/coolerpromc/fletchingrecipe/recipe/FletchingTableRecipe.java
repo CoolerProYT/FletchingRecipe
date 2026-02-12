@@ -4,30 +4,57 @@ import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.recipe.IngredientPlacement;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.book.RecipeBookCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.world.World;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
-public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStack output) implements Recipe<FletchingRecipeInput> {
+public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, Optional<SizedIngredient> bottom, ItemStackTemplate output) implements Recipe<FletchingRecipeInput> {
+    public static final MapCodec<FletchingTableRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            SizedIngredient.CODEC.fieldOf("top").forGetter(FletchingTableRecipe::top),
+            SizedIngredient.CODEC.fieldOf("middle").forGetter(FletchingTableRecipe::middle),
+            SizedIngredient.CODEC.optionalFieldOf("bottom").forGetter(FletchingTableRecipe::bottom),
+            ItemStackTemplate.CODEC.fieldOf("output").forGetter(FletchingTableRecipe::output)
+    ).apply(instance, FletchingTableRecipe::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, FletchingTableRecipe> STREAM_CODEC = StreamCodec.composite(
+            SizedIngredient.PACKET_CODEC,
+            FletchingTableRecipe::top,
+            SizedIngredient.PACKET_CODEC,
+            FletchingTableRecipe::middle,
+            SizedIngredient.PACKET_CODEC.apply(ByteBufCodecs::optional),
+            FletchingTableRecipe::bottom,
+            ItemStackTemplate.STREAM_CODEC,
+            FletchingTableRecipe::output,
+            FletchingTableRecipe::new
+    );
+
+    public static final RecipeSerializer<FletchingTableRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     @Override
-    public boolean matches(FletchingRecipeInput fletchingRecipeInput, World level) {
+    public boolean matches(FletchingRecipeInput fletchingRecipeInput, Level level) {
         return bottom.map(sizedIngredient -> top.test(fletchingRecipeInput.top()) && middle.test(fletchingRecipeInput.middle()) && sizedIngredient.test(fletchingRecipeInput.bottom()))
                 .orElseGet(() -> top.test(fletchingRecipeInput.top()) && middle.test(fletchingRecipeInput.middle()) && fletchingRecipeInput.bottom().isEmpty());
     }
 
     @Override
-    public ItemStack craft(FletchingRecipeInput fletchingRecipeInput, RegistryWrapper.WrapperLookup provider) {
-        return this.output.copy();
+    public ItemStack assemble(FletchingRecipeInput fletchingRecipeInput) {
+        return this.output.create();
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "";
     }
 
     @Override
@@ -41,39 +68,12 @@ public record FletchingTableRecipe(SizedIngredient top, SizedIngredient middle, 
     }
 
     @Override
-    public IngredientPlacement getIngredientPlacement() {
-        return IngredientPlacement.NONE;
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public RecipeBookCategory getRecipeBookCategory() {
+    public RecipeBookCategory recipeBookCategory() {
         return null;
-    }
-
-    public static class Serializer implements RecipeSerializer<FletchingTableRecipe> {
-        public static final Serializer INSTANCE = new Serializer();
-
-        public MapCodec<FletchingTableRecipe> codec() {
-            return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    SizedIngredient.CODEC.fieldOf("top").forGetter(FletchingTableRecipe::top),
-                    SizedIngredient.CODEC.fieldOf("middle").forGetter(FletchingTableRecipe::middle),
-                    SizedIngredient.CODEC.optionalFieldOf("bottom").forGetter(FletchingTableRecipe::bottom),
-                    ItemStack.CODEC.fieldOf("output").forGetter(FletchingTableRecipe::output)
-            ).apply(instance, FletchingTableRecipe::new));
-        }
-
-        public PacketCodec<RegistryByteBuf, FletchingTableRecipe> packetCodec() {
-            return PacketCodec.tuple(
-                    SizedIngredient.PACKET_CODEC,
-                    FletchingTableRecipe::top,
-                    SizedIngredient.PACKET_CODEC,
-                    FletchingTableRecipe::middle,
-                    SizedIngredient.PACKET_CODEC.collect(PacketCodecs::optional),
-                    FletchingTableRecipe::bottom,
-                    ItemStack.PACKET_CODEC,
-                    FletchingTableRecipe::output,
-                    FletchingTableRecipe::new
-            );
-        }
     }
 }

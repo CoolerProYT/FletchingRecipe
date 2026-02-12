@@ -2,22 +2,22 @@ package com.coolerpromc.fletchingrecipe.network.packet;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record ClientBoundConfigSyncPacket(boolean allowExplosiveCrafting, int tippedArrowCraftingAmount, int explosiveArrowCraftingAmount) implements CustomPayload {
-    public static final Id<ClientBoundConfigSyncPacket> TYPE = new Id<>(Identifier.of(FletchingRecipe.MOD_ID, "config_sync"));
+public record ClientBoundConfigSyncPacket(boolean allowExplosiveCrafting, int tippedArrowCraftingAmount, int explosiveArrowCraftingAmount) implements CustomPacketPayload {
+    public static final Type<ClientBoundConfigSyncPacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "config_sync"));
     public static ClientBoundConfigSyncPacket INSTANCE = null;
 
-    public static final PacketCodec<RegistryByteBuf, ClientBoundConfigSyncPacket> STREAM_CODEC = PacketCodec.tuple(
-            PacketCodecs.BOOLEAN,
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientBoundConfigSyncPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,
             ClientBoundConfigSyncPacket::allowExplosiveCrafting,
-            PacketCodecs.INTEGER,
+            ByteBufCodecs.INT,
             ClientBoundConfigSyncPacket::tippedArrowCraftingAmount,
-            PacketCodecs.INTEGER,
+            ByteBufCodecs.INT,
             ClientBoundConfigSyncPacket::explosiveArrowCraftingAmount,
             ClientBoundConfigSyncPacket::new
     );
@@ -29,7 +29,7 @@ public record ClientBoundConfigSyncPacket(boolean allowExplosiveCrafting, int ti
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

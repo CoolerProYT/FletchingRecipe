@@ -1,16 +1,22 @@
 package com.coolerpromc.fletchingrecipe.compat.morefletchingtable;
 
-import de.pnku.mft.init.MftBlockInit;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemConvertible;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MoreFletchingTableStation {
-    public static ItemConvertible[] get(){
-        List<ItemConvertible> items = new ArrayList<>(MftBlockInit.more_fletching_tables);
+    public static ItemLike[] get(){
+        List<ItemLike> items = new ArrayList<>();
         items.add(Blocks.FLETCHING_TABLE);
-        return items.toArray(new ItemConvertible[0]);
+        try {
+            Class<?> clazz = Class.forName("de.pnku.mft.init.MftBlockInit");
+            List<?> moreTables = (List<?>) clazz.getField("more_fletching_tables").get(null);
+            for (Object obj : moreTables) {
+                items.add((ItemLike) obj);
+            }
+        } catch (Exception ignored) {}
+        return items.toArray(new ItemLike[0]);
     }
 }

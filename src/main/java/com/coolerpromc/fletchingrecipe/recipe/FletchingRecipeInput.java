@@ -1,11 +1,11 @@
 package com.coolerpromc.fletchingrecipe.recipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.input.RecipeInput;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
 
 public record FletchingRecipeInput(ItemStack top, ItemStack middle, ItemStack bottom) implements RecipeInput {
     @Override
-    public ItemStack getStackInSlot(int i) {
+    public ItemStack getItem(int i) {
         return switch (i) {
             case 0 -> top;
             case 1 -> middle;

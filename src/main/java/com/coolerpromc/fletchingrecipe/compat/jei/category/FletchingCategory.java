@@ -10,25 +10,25 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 
 public class FletchingCategory extends AbstractRecipeCategory<JeiFletchingRecipe> {
-    public static final Identifier UID = Identifier.of(FletchingRecipe.MOD_ID, "fletching");
-    public static final Identifier TEXTURE = Identifier.of(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
+    public static final Identifier UID = Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "fletching");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
     public static final IRecipeType<JeiFletchingRecipe> FLETCHING_TYPE = IRecipeType.create(UID, JeiFletchingRecipe.class);
 
     public FletchingCategory(IGuiHelper helper) {
-        super(FLETCHING_TYPE, Text.translatable("category.jei.fletching"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 123, 56);
+        super(FLETCHING_TYPE, Component.translatable("category.jei.fletching"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 123, 56);
     }
 
     @Override
-    public void draw(JeiFletchingRecipe recipe, IRecipeSlotsView recipeSlotsView, DrawContext guiGraphics, double mouseX, double mouseY) {
-        guiGraphics.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 34, 15, 123, 56, 256, 256);
+    public void draw(JeiFletchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 34, 15, 123, 56, 256, 256);
     }
 
     @Override

@@ -3,66 +3,62 @@ package com.coolerpromc.fletchingrecipe.datagen;
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.datagen.recipebuilder.FletchingRecipeBuilder;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.fabricmc.fabric.impl.recipe.ingredient.builtin.ComponentsIngredient;
-import net.minecraft.advancement.AdvancementCriterion;
-import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.data.recipe.RecipeExporter;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.predicate.component.ComponentMapPredicate;
-import net.minecraft.predicate.component.ComponentsPredicate;
-import net.minecraft.predicate.item.ItemPredicate;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentExactPredicate;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends FabricRecipeProvider {
-    public ModRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> lookup) {
+    public ModRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> lookup) {
         super(output, lookup);
     }
 
     @Override
-    protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter recipeExporter) {
-        return new RecipeGenerator(wrapperLookup, recipeExporter) {
+    protected RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
+        return new RecipeProvider(wrapperLookup, recipeExporter) {
             @Override
-            public void generate() {
+            public void buildRecipes() {
                 FletchingRecipeBuilder.builder()
                         .top(SizedIngredient.of(Items.FLINT, 1))
                         .middle(SizedIngredient.of(Items.STICK, 1))
                         .bottom(SizedIngredient.of(Items.FEATHER, 1))
-                        .output(new ItemStack(Items.ARROW, 8))
-                        .criterion(hasItem(Items.FLINT), conditionsFromItem(Items.FLINT))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .criterion(hasItem(Items.FEATHER), conditionsFromItem(Items.FEATHER))
-                        .offerTo(exporter, RegistryKey.of(RegistryKeys.RECIPE, Identifier.of(FletchingRecipe.MOD_ID, "fletching/arrow")));
+                        .output(new ItemStackTemplate(Items.ARROW, 8))
+                        .unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .unlockedBy(getHasName(Items.FEATHER), has(Items.FEATHER))
+                        .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "fletching/arrow")));
 
                 FletchingRecipeBuilder.builder()
                         .top(SizedIngredient.of(Items.GLOWSTONE_DUST, 4))
                         .middle(SizedIngredient.of(Items.ARROW, 1))
-                        .output(new ItemStack(Items.SPECTRAL_ARROW, 4))
-                        .criterion(hasItem(Items.GLOWSTONE_DUST), conditionsFromItem(Items.GLOWSTONE_DUST))
-                        .criterion(hasItem(Items.ARROW), conditionsFromItem(Items.ARROW))
-                        .offerTo(exporter, RegistryKey.of(RegistryKeys.RECIPE, Identifier.of(FletchingRecipe.MOD_ID, "fletching/spectral_arrow")));
+                        .output(new ItemStackTemplate(Items.SPECTRAL_ARROW, 4))
+                        .unlockedBy(getHasName(Items.GLOWSTONE_DUST), has(Items.GLOWSTONE_DUST))
+                        .unlockedBy(getHasName(Items.ARROW), has(Items.ARROW))
+                        .save(output, ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "fletching/spectral_arrow")));
             }
 
-            private static String getHasName(ItemConvertible itemLike, PotionContentsComponent key) {
-                return "has_" + key.potion().get().value().getBaseName() + "_" + getItemPath(itemLike);
+            private static String getHasName(ItemLike itemLike, PotionContents key) {
+                return "has_" + key.potion().get().value().name() + "_" + getItemName(itemLike);
             }
 
-            private AdvancementCriterion<InventoryChangedCriterion.Conditions> has(ItemConvertible itemLike, PotionContentsComponent key) {
-                return conditionsFromPredicates(ItemPredicate.Builder.create().components(ComponentsPredicate.Builder.create().exact(ComponentMapPredicate.builder().add(DataComponentTypes.POTION_CONTENTS, key).build()).build()));
+            private Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike, PotionContents key) {
+                return inventoryTrigger(ItemPredicate.Builder.item().withComponents(DataComponentMatchers.Builder.components().exact(DataComponentExactPredicate.builder().expect(DataComponents.POTION_CONTENTS, key).build()).build()));
             }
         };
     }

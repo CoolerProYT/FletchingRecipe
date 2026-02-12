@@ -16,29 +16,28 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.registration.*;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.display.SlotDisplayContexts;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.context.ContextParameterMap;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ModJEIPlugin implements IModPlugin {
     @Override
     public Identifier getPluginUid() {
-        return Identifier.of(FletchingRecipe.MOD_ID, "jei_plugin");
+        return Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "jei_plugin");
     }
 
     @Override
@@ -51,35 +50,35 @@ public class ModJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(FletchingCategory.FLETCHING_TYPE, !FabricLoader.getInstance().isModLoaded("lolmft") ? new ItemConvertible[]{Blocks.FLETCHING_TABLE} : MoreFletchingTableStation.get());
-        registration.addCraftingStation(ExplosiveCategory.EXPLOSIVE_TYPE, !FabricLoader.getInstance().isModLoaded("lolmft") ? new ItemConvertible[]{Blocks.FLETCHING_TABLE} : MoreFletchingTableStation.get());
+        registration.addCraftingStation(FletchingCategory.FLETCHING_TYPE, !FabricLoader.getInstance().isModLoaded("lolmft") ? new ItemLike[]{Blocks.FLETCHING_TABLE} : MoreFletchingTableStation.get());
+        registration.addCraftingStation(ExplosiveCategory.EXPLOSIVE_TYPE, !FabricLoader.getInstance().isModLoaded("lolmft") ? new ItemLike[]{Blocks.FLETCHING_TABLE} : MoreFletchingTableStation.get());
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<JeiFletchingRecipe> fletchingTableRecipes = new ArrayList<>(FletchingRecipeClient.recipeMap.getAll(FletchingRecipe.FLETCHING_RECIPE_TYPE).stream().map(RecipeEntry::value).map(recipe -> {
-            ContextParameterMap contextMap = SlotDisplayContexts.createParameters(MinecraftClient.getInstance().world);
+        List<JeiFletchingRecipe> fletchingTableRecipes = new ArrayList<>(FletchingRecipeClient.recipeMap.byType(FletchingRecipe.FLETCHING_RECIPE_TYPE).stream().map(RecipeHolder::value).map(recipe -> {
+            ContextMap contextMap = SlotDisplayContext.fromLevel(Minecraft.getInstance().level);
             List<ItemStack> bottom = List.of();
             if (recipe.bottom().isPresent()){
-                bottom = recipe.bottom().get().ingredient().toDisplay().getStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList();
+                bottom = recipe.bottom().get().ingredient().display().resolveForStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList();
             }
             return new JeiFletchingRecipe(
-                    recipe.top().ingredient().toDisplay().getStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.top().count())).toList(),
-                    recipe.middle().ingredient().toDisplay().getStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.middle().count())).toList(),
+                    recipe.top().ingredient().display().resolveForStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.top().count())).toList(),
+                    recipe.middle().ingredient().display().resolveForStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.middle().count())).toList(),
                     bottom,
-                    recipe.output()
+                    recipe.output().create()
             );
         }).toList());
 
-        Registries.POTION.getIndexedEntries().forEach(potion -> {
+        BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
             if (FabricLoader.getInstance().isModLoaded("arrowplus")) ArrowPlusTippedRecipe.register(potion, fletchingTableRecipes);
 
             ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
-            outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+            outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
 
             JeiFletchingRecipe recipe = new JeiFletchingRecipe(
-                    List.of(new ItemStack(Items.LINGERING_POTION.getRegistryEntry(), 1, ComponentChanges.builder().add(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion)).build())),
-                    List.of(new ItemStack(Items.ARROW.getRegistryEntry(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount())),
+                    List.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(potion)).build())),
+                    List.of(new ItemStack(Items.ARROW.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount())),
                     List.of(),
                     outputStack
             );
@@ -91,16 +90,16 @@ public class ModJEIPlugin implements IModPlugin {
 
         List<JeiExplosiveRecipe> explosiveRecipes = new ArrayList<>();
 
-        for (RegistryEntry<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
+        for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
             ItemStack explosiveIngredient = new ItemStack(holder);
 
-            ItemStack arrow = Items.ARROW.getDefaultStack();
+            ItemStack arrow = Items.ARROW.getDefaultInstance();
             arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
             explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, arrow, arrowOutputStack));
 
-            ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultStack();
+            ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
             spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
             spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
@@ -108,14 +107,14 @@ public class ModJEIPlugin implements IModPlugin {
 
             if (FabricLoader.getInstance().isModLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, explosiveRecipes);
 
-            Registries.POTION.getIndexedEntries().forEach(potion -> {
+            BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
                 if (FabricLoader.getInstance().isModLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, explosiveRecipes);
 
                 ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                inputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+                inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
 
                 ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion));
+                outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
                 outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
 
                 JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(

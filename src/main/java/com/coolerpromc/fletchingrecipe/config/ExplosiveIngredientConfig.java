@@ -5,12 +5,11 @@ import com.coolerpromc.fletchingrecipe.config.exception.ItemNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
+import net.minecraft.IdentifierException;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -25,7 +24,7 @@ public class ExplosiveIngredientConfig {
     private static final Type MAP_TYPE = new TypeToken<Map<String, Float>>(){}.getType();
 
     private static Map<String, Float> explosiveIngredientMap = new ConcurrentHashMap<>();
-    public static final Map<RegistryEntry<Item>, Float> explosiveIngredients = new ConcurrentHashMap<>();
+    public static final Map<Holder<Item>, Float> explosiveIngredients = new ConcurrentHashMap<>();
     private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "fletchingrecipe-explosive-ingredient.json");
 
     private static WatchService watchService;
@@ -52,15 +51,15 @@ public class ExplosiveIngredientConfig {
 
         for (Map.Entry<String, Float> entry : explosiveIngredientMap.entrySet()){
             try {
-                Identifier id = Identifier.of(entry.getKey());
-                Optional<RegistryEntry.Reference<Item>> holder = Registries.ITEM.getEntry(id);
+                Identifier id = Identifier.parse(entry.getKey());
+                Optional<Holder.Reference<Item>> holder = BuiltInRegistries.ITEM.get(id);
 
                 if (holder.isEmpty()){
                     throw new ItemNotFoundException();
                 }
                 explosiveIngredients.put(holder.get(), entry.getValue());
             }
-            catch (InvalidIdentifierException e){
+            catch (IdentifierException e){
                 FletchingRecipe.LOGGER.error("[Explosive Ingredient Config] Invalid item id defined: {}", entry.getKey());
             }
             catch (ItemNotFoundException e){

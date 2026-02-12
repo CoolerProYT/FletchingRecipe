@@ -1,39 +1,38 @@
 package com.coolerpromc.fletchingrecipe.screen;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.CyclingSlotIcon;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Inventory;
 
-public class FletchingTableScreen extends HandledScreen<FletchingTableMenu> {
-    public static final Identifier TEXTURE = Identifier.of(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
-    private final CyclingSlotIcon explosionSlotBackground = new CyclingSlotIcon(4);
+public class FletchingTableScreen extends AbstractContainerScreen<FletchingTableMenu> {
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "textures/gui/fletching_table.png");
+    private final CyclingSlotBackground explosionSlotBackground = new CyclingSlotBackground(4);
 
-    public FletchingTableScreen(FletchingTableMenu menu, PlayerInventory playerInventory, Text title) {
+    public FletchingTableScreen(FletchingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
     @Override
-    protected void handledScreenTick() {
-        super.handledScreenTick();
-        this.explosionSlotBackground.updateTexture(List.of(Identifier.of(FletchingRecipe.MOD_ID, "empty_slot_gunpowder"), Identifier.of(FletchingRecipe.MOD_ID, "empty_slot_tnt")));
+    protected void containerTick() {
+        super.containerTick();
+        this.explosionSlotBackground.tick(List.of(Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "empty_slot_gunpowder"), Identifier.fromNamespaceAndPath(FletchingRecipe.MOD_ID, "empty_slot_tnt")));
     }
 
     @Override
-    protected void drawBackground(DrawContext context, float deltaTicks, int mouseX, int mouseY) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
-        this.explosionSlotBackground.render(this.handler, context, deltaTicks, x, y);
+    protected void renderBg(GuiGraphics context, float deltaTicks, int mouseX, int mouseY) {
+        context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        this.explosionSlotBackground.render(this.menu, context, deltaTicks, leftPos, topPos);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
-        drawMouseoverTooltip(context, mouseX, mouseY);
+        renderTooltip(context, mouseX, mouseY);
     }
 }

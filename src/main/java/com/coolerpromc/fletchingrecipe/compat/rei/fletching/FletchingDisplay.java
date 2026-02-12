@@ -1,3 +1,4 @@
+/*
 
 package com.coolerpromc.fletchingrecipe.compat.rei.fletching;
 
@@ -7,9 +8,9 @@ import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.display.Display;
 import me.shedaniel.rei.api.common.display.DisplaySerializer;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,10 +23,10 @@ public record FletchingDisplay(List<EntryIngredient> input, List<EntryIngredient
                     EntryIngredient.codec().listOf().fieldOf("input").forGetter(FletchingDisplay::input),
                     EntryIngredient.codec().listOf().fieldOf("output").forGetter(FletchingDisplay::output)
             ).apply(instance, FletchingDisplay::new)),
-            PacketCodec.tuple(
-                    EntryIngredient.streamCodec().collect(PacketCodecs.toList()),
+            StreamCodec.composite(
+                    EntryIngredient.streamCodec().apply(ByteBufCodecs.list()),
                     FletchingDisplay::input,
-                    EntryIngredient.streamCodec().collect(PacketCodecs.toList()),
+                    EntryIngredient.streamCodec().apply(ByteBufCodecs.list()),
                     FletchingDisplay::output,
                     FletchingDisplay::new
             )
@@ -55,4 +56,4 @@ public record FletchingDisplay(List<EntryIngredient> input, List<EntryIngredient
     public @Nullable DisplaySerializer<? extends Display> getSerializer() {
         return SERIALIZER;
     }
-}
+}*/

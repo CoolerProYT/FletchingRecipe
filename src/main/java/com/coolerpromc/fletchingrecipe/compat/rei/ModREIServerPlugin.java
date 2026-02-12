@@ -1,3 +1,4 @@
+/*
 package com.coolerpromc.fletchingrecipe.compat.rei;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
@@ -9,9 +10,8 @@ import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.plugins.REICommonPlugin;
 import me.shedaniel.rei.api.common.registry.display.ServerDisplayRegistry;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
-import net.minecraft.util.context.ContextParameterMap;
-import net.minecraft.util.context.ContextType;
-
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import java.util.List;
 
 public class ModREIServerPlugin implements REICommonPlugin {
@@ -20,10 +20,10 @@ public class ModREIServerPlugin implements REICommonPlugin {
         registry.beginRecipeFiller(FletchingTableRecipe.class).filterType(FletchingRecipe.FLETCHING_RECIPE_TYPE).fill(fletchingTableRecipeRecipeHolder -> {
             FletchingTableRecipe recipe = fletchingTableRecipeRecipeHolder.value();
             List<EntryIngredient> input;
-            EntryIngredient top = EntryIngredients.ofItemStacks(recipe.top().ingredient().toDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.top().count())).toList());
-            EntryIngredient middle = EntryIngredients.ofItemStacks(recipe.middle().ingredient().toDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.middle().count())).toList());
+            EntryIngredient top = EntryIngredients.ofItemStacks(recipe.top().ingredient().display().resolveForStacks(new ContextMap.Builder().create(new ContextKeySet.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.top().count())).toList());
+            EntryIngredient middle = EntryIngredients.ofItemStacks(recipe.middle().ingredient().display().resolveForStacks(new ContextMap.Builder().create(new ContextKeySet.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.middle().count())).toList());
             if (recipe.bottom().isPresent()){
-                EntryIngredient bottom = EntryIngredients.ofItemStacks(recipe.bottom().get().ingredient().toDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList());
+                EntryIngredient bottom = EntryIngredients.ofItemStacks(recipe.bottom().get().ingredient().display().resolveForStacks(new ContextMap.Builder().create(new ContextKeySet.Builder().build())).stream().map(stack -> stack.copyWithCount(recipe.bottom().get().count())).toList());
                 input = List.of(top, middle, bottom);
             }
             else {
@@ -42,3 +42,4 @@ public class ModREIServerPlugin implements REICommonPlugin {
         registry.register(ExplosiveDisplay.CATEGORY_IDENTIFIER.getIdentifier(), ExplosiveDisplay.SERIALIZER);
     }
 }
+*/

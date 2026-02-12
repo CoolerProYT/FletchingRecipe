@@ -1,10 +1,15 @@
 package com.coolerpromc.fletchingrecipe.compat.morefletchingtable;
 
-import de.pnku.mft.block.MoreFletchingTablesBlock;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 
 public class MoreFletchingTableCheck {
     public static boolean checkBlock(Block block){
-        return block instanceof MoreFletchingTablesBlock;
+        try{
+            Class<?> target = Class.forName("de.pnku.mft.block.MoreFletchingTablesBlock");
+            return target.isInstance(block);
+        }
+        catch (ClassNotFoundException e){
+            return false;
+        }
     }
 }

@@ -1,4 +1,4 @@
-classTweaker v1 named
-accessible method net/minecraft/entity/projectile/PersistentProjectileEntity onHit (Lnet/minecraft/entity/LivingEntity;)V
-accessible method net/minecraft/entity/projectile/ArrowEntity onHit (Lnet/minecraft/entity/LivingEntity;)V
-accessible method net/minecraft/entity/projectile/SpectralArrowEntity onHit (Lnet/minecraft/entity/LivingEntity;)V
+classTweaker v1 official
+accessible method net/minecraft/world/entity/projectile/arrow/AbstractArrow doPostHurtEffects (Lnet/minecraft/world/entity/LivingEntity;)V
+accessible method net/minecraft/world/entity/projectile/arrow/Arrow doPostHurtEffects (Lnet/minecraft/world/entity/LivingEntity;)V
+accessible method net/minecraft/world/entity/projectile/arrow/SpectralArrow doPostHurtEffects (Lnet/minecraft/world/entity/LivingEntity;)V
