@@ -9,8 +9,7 @@ import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +22,7 @@ public class FletchingRecipeBuilder implements RecipeBuilder {
     private SizedIngredient top;
     private SizedIngredient middle;
     private SizedIngredient bottom;
-    private ItemStack output;
+    private ItemStackTemplate output;
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
     private String group;
@@ -49,7 +48,7 @@ public class FletchingRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public FletchingRecipeBuilder output(ItemStack output){
+    public FletchingRecipeBuilder output(ItemStackTemplate output){
         this.output = output;
         return this;
     }
@@ -67,8 +66,8 @@ public class FletchingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public Item getResult() {
-        return output.getItem();
+    public ResourceKey<Recipe<?>> defaultId() {
+        return RecipeBuilder.getDefaultRecipeId(this.output);
     }
 
     @Override

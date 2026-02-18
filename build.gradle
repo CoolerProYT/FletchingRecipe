@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.115'
+    id 'net.neoforged.moddev' version '2.0.140'
     id 'idea'
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
@@ -32,15 +32,10 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -86,15 +81,15 @@ configurations {
 }
 
 dependencies {
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "mezz.jei:jei-26.1-snapshot-4-neoforge-api:${jei_version}"
+    compileOnly "mezz.jei:jei-26.1-snapshot-4-neoforge:${jei_version}"
 
-    compileOnly "dev.architectury:architectury-neoforge:${architectury_version}"
-    compileOnly "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
-    compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}"
-    compileOnly  "me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}"
+//    compileOnly "dev.architectury:architectury-neoforge:${architectury_version}"
+//    compileOnly "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
+//    compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}"
+//    compileOnly  "me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}"
 
-    implementation "com.coolerpromc:arrowplus:3.1.0+1.21.11-neoforge"
+    compileOnly "com.coolerpromc:arrowplus:3.1.0+1.21.11-neoforge"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -151,7 +146,7 @@ idea {
 
 publishMods {
     file.set(jar.archiveFile)
-    type = STABLE
+    type = BETA
     modLoaders.add("neoforge")
     changelog = file("changelog.md").text
     displayName = mod_id + "-" + mod_version
@@ -159,7 +154,7 @@ publishMods {
     curseforge {
         projectId = "1364606"
         accessToken = findProperty("CF_TOKEN")
-        minecraftVersions.add(minecraft_version)
+        minecraftVersions.add("26.1-snapshot")
     }
 
     modrinth {

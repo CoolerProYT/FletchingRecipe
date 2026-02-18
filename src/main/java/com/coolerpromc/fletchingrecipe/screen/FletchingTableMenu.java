@@ -55,7 +55,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(explosiveSlot, 0, 17, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return ExplosiveIngredientConfig.explosiveIngredients.containsKey(stack.getItemHolder());
+                return ExplosiveIngredientConfig.explosiveIngredients.containsKey(stack.typeHolder());
             }
 
             @Override
@@ -106,7 +106,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
                 slot.onQuickCraft(original, result);
             }
             else if (index >= INV_SLOT_START && index < HOTBAR_SLOT_END) {
-                if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(original.getItemHolder())) {
+                if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(original.typeHolder())) {
                     if (!this.moveItemStackTo(original, GUNPOWDER_SLOT, GUNPOWDER_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
@@ -183,7 +183,7 @@ public class FletchingTableMenu extends AbstractContainerMenu {
             RecipeHolder<FletchingTableRecipe> recipeholder = optional.get();
             FletchingTableRecipe recipe = recipeholder.value();
             if (resultSlots.setRecipeUsed(serverplayer, recipeholder)) {
-                ItemStack itemstack1 = recipe.assemble(input, level.registryAccess());
+                ItemStack itemstack1 = recipe.assemble(input);
                 if (itemstack1.isItemEnabled(level.enabledFeatures())) {
                     itemstack = itemstack1;
                 }
@@ -315,8 +315,8 @@ public class FletchingTableMenu extends AbstractContainerMenu {
     private ItemStack createExplosiveArrow(ItemStack arrowStack) {
         ItemStack result = arrowStack.copy();
         result.setCount(FletchingRecipeConfig.CONFIG.explosiveArrowCraftingAmount.get());
-        if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(explosiveSlot.getItem(0).getItemHolder())){
-            result.set(FletchingRecipe.EXPLOSIVE, explosiveSlot.getItem(0).getItemHolder());
+        if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(explosiveSlot.getItem(0).typeHolder())){
+            result.set(FletchingRecipe.EXPLOSIVE, explosiveSlot.getItem(0).typeHolder());
         }
         return result;
     }

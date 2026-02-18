@@ -67,7 +67,7 @@ public class ModJEIPlugin implements IModPlugin {
                     recipe.top().ingredient().display().resolveForStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.top().count())).toList(),
                     recipe.middle().ingredient().display().resolveForStacks(contextMap).stream().map(stack -> stack.copyWithCount(recipe.middle().count())).toList(),
                     bottom,
-                    recipe.output()
+                    recipe.output().create()
             );
         }).toList());
 

@@ -61,7 +61,7 @@ public class FletchingRecipe {
 
     public static final Supplier<MenuType<FletchingTableMenu>> FLETCHING_TABLE_MENU = MENU_TYPES.register("fletching_table", () -> IMenuTypeExtension.create(FletchingTableMenu::new));
     public static final Supplier<RecipeType<FletchingTableRecipe>> FLETCHING_RECIPE_TYPE = TYPES.register("fletching", () -> RecipeType.simple(Identifier.fromNamespaceAndPath(MODID, "fletching")));
-    public static final Supplier<RecipeSerializer<FletchingTableRecipe>> FLETCHING_RECIPE_SERIALIZER = SERIALIZERS.register("fletching", () -> FletchingTableRecipe.Serializer.INSTANCE);
+    public static final Supplier<RecipeSerializer<FletchingTableRecipe>> FLETCHING_RECIPE_SERIALIZER = SERIALIZERS.register("fletching", () -> FletchingTableRecipe.SERIALIZER);
     public static final Supplier<DataComponentType<Holder<Item>>> EXPLOSIVE = COMPONENTS.registerComponentType("explosive", builder -> builder.persistent(Item.CODEC).networkSynchronized(Item.STREAM_CODEC).cacheEncoding());
 
     public FletchingRecipe(IEventBus modEventBus, ModContainer modContainer) {
