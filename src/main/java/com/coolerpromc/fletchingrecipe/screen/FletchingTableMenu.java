@@ -36,6 +36,7 @@ public class FletchingTableMenu extends ScreenHandler {
     private final CraftingResultInventory resultSlot = new CraftingResultInventory();
     private final ScreenHandlerContext access;
     private final FletchingResultSlot fletchingResultSlot;
+    private final boolean explosiveEnabled;
 
     public FletchingTableMenu(int containerId, PlayerInventory playerInventory) {
         this(containerId, playerInventory, ScreenHandlerContext.EMPTY);
@@ -53,18 +54,31 @@ public class FletchingTableMenu extends ScreenHandler {
             this.addSlot(new Slot(inputSlots, i, 48, 17 + i * 18));
         }
 
-        this.addSlot(new Slot(explosiveSlot, 0, 17, 35) {
-            @Override
-            public boolean canInsert(ItemStack stack) {
-                return ExplosiveIngredientConfig.explosiveIngredients.containsKey(stack.getRegistryEntry());
-            }
+        this.explosiveEnabled = FletchingRecipeConfig.allowExplosiveCrafting();
 
-            @Override
-            public void markDirty() {
-                super.markDirty();
-                onContentChanged(explosiveSlot);
-            }
-        });
+        if (this.explosiveEnabled) {
+            this.addSlot(new Slot(explosiveSlot, 0, 17, 35) {
+                @Override
+                public boolean canInsert(ItemStack stack) {
+                    return ExplosiveIngredientConfig.explosiveIngredients.containsKey(stack.getRegistryEntry());
+                }
+
+                @Override
+                public void markDirty() {
+                    super.markDirty();
+                    onContentChanged(explosiveSlot);
+                }
+            });
+            GUNPOWDER_SLOT = 4;
+            INV_SLOT_START = 5;
+        } else {
+            GUNPOWDER_SLOT = -1;
+            INV_SLOT_START = 4;
+        }
+
+        INV_SLOT_END = INV_SLOT_START + 27;
+        HOTBAR_SLOT_START = INV_SLOT_END;
+        HOTBAR_SLOT_END = HOTBAR_SLOT_START + 9;
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
@@ -73,15 +87,18 @@ public class FletchingTableMenu extends ScreenHandler {
     public static final int RESULT_SLOT = 0;
     private static final int CRAFT_SLOT_START = 1;
     private static final int CRAFT_SLOT_END = 4;
-    private static final int GUNPOWDER_SLOT = 4;
-    private static final int INV_SLOT_START = 5;
-    private static final int INV_SLOT_END = 32;
-    private static final int HOTBAR_SLOT_START = INV_SLOT_END;
-    private static final int HOTBAR_SLOT_COUNT = 9;
-    private static final int HOTBAR_SLOT_END = HOTBAR_SLOT_START + HOTBAR_SLOT_COUNT;
+    private final int GUNPOWDER_SLOT;
+    private final int INV_SLOT_START;
+    private final int INV_SLOT_END;
+    private final int HOTBAR_SLOT_START;
+    private final int HOTBAR_SLOT_END;
 
     public boolean hasExplosive() {
-        return !explosiveSlot.getStack(0).isEmpty() && FletchingRecipeConfig.allowExplosiveCrafting();
+        return !explosiveSlot.getStack(0).isEmpty() && explosiveEnabled;
+    }
+
+    public boolean isExplosiveEnabled() {
+        return explosiveEnabled;
     }
 
     public void consumeExplosive() {
@@ -107,7 +124,7 @@ public class FletchingTableMenu extends ScreenHandler {
                 slot.onQuickTransfer(original, result);
             }
             else if (index >= INV_SLOT_START && index < HOTBAR_SLOT_END) {
-                if (ExplosiveIngredientConfig.explosiveIngredients.containsKey(original.getRegistryEntry())) {
+                if (explosiveEnabled && ExplosiveIngredientConfig.explosiveIngredients.containsKey(original.getRegistryEntry())) {
                     if (!this.insertItem(original, GUNPOWDER_SLOT, GUNPOWDER_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
