@@ -12,6 +12,7 @@ base {
 }
 
 repositories {
+    mavenLocal()
 	maven { url "https://maven.shedaniel.me" }
 	maven {
 		url 'https://maven.blamejared.com'
@@ -38,7 +39,7 @@ repositories {
         }
     }
     maven {
-        url = "https://repo.repsy.io/coolerpromc/maven"
+        url = "https://maven.coolerpromc.com/"
     }
 }
 
@@ -117,10 +118,10 @@ publishing {
     repositories {
         mavenLocal()
         maven {
-            url = findProperty("repsy_url")
+            url = findProperty("maven_url")
             credentials {
-                username = findProperty("repsy_username")
-                password = findProperty("repsy_password")
+                username = findProperty("maven_username")
+                password = findProperty("maven_password")
             }
         }
     }

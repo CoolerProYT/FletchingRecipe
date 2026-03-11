@@ -21,13 +21,20 @@ public class FletchingTableScreen extends HandledScreen<FletchingTableMenu> {
     @Override
     protected void handledScreenTick() {
         super.handledScreenTick();
-        this.explosionSlotBackground.updateTexture(List.of(Identifier.of(FletchingRecipe.MOD_ID, "item/empty_slot_gunpowder"), Identifier.of(FletchingRecipe.MOD_ID, "item/empty_slot_tnt")));
+        if (this.handler.isExplosiveEnabled()) {
+            this.explosionSlotBackground.updateTexture(List.of(Identifier.of(FletchingRecipe.MOD_ID, "item/empty_slot_gunpowder"), Identifier.of(FletchingRecipe.MOD_ID, "item/empty_slot_tnt")));
+        }
     }
 
     @Override
     protected void drawBackground(DrawContext context, float deltaTicks, int mouseX, int mouseY) {
         context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
-        this.explosionSlotBackground.render(this.handler, context, deltaTicks, x, y);
+        if (this.handler.isExplosiveEnabled()) {
+            this.explosionSlotBackground.render(this.handler, context, deltaTicks, x, y);
+        }
+        else{
+            context.fill(this.x + 16, this.y + 34, this.x + 17 + 18, this.y + 35 + 18, 0xFFC6C6C6);
+        }
     }
 
     @Override
