@@ -22,13 +22,20 @@ public class FletchingTableScreen extends AbstractContainerScreen<FletchingTable
     @Override
     protected void containerTick() {
         super.containerTick();
-        this.explosionSlotBackground.tick(List.of(Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "empty_slot_gunpowder"), Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "empty_slot_tnt")));
+        if (this.menu.isExplosiveEnabled()) {
+            this.explosionSlotBackground.tick(List.of(Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "empty_slot_gunpowder"), Identifier.fromNamespaceAndPath(FletchingRecipe.MODID, "empty_slot_tnt")));
+        }
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
-        this.explosionSlotBackground.render(this.menu, guiGraphics, v, leftPos, topPos);
+        if (this.menu.isExplosiveEnabled()) {
+            this.explosionSlotBackground.render(this.menu, guiGraphics, v, leftPos, topPos);
+        }
+        else{
+            guiGraphics.fill(this.leftPos + 16, this.topPos + 34, this.leftPos + 17 + 18, this.topPos + 35 + 18, 0xFFC6C6C6);
+        }
     }
 
     @Override
