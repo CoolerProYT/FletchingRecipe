@@ -1,1 +1,1 @@
-- Port to 26.1-snapshot-7
+- Hide explosive material slot when explosive arrow disabled
