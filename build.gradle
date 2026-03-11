@@ -104,6 +104,13 @@ publishing {
     }
     repositories {
         mavenLocal()
+        maven {
+            url = findProperty("maven_url")
+            credentials {
+                username = findProperty("maven_username")
+                password = findProperty("maven_password")
+            }
+        }
     }
 }
 
