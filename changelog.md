@@ -1,1 +1,1 @@
-- Fixed JREI not working when Arrow+ installed
+- Hide explosive material slot when explosive arrow disabled
