@@ -10,7 +10,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -26,10 +26,10 @@ public class FletchingCategory extends AbstractRecipeCategory<JeiFletchingRecipe
         super(FLETCHING_TYPE, Component.translatable("category.jei.fletching"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 123, 56);
     }
 
-    @Override
-    public void draw(JeiFletchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    /*@Override
+    public void draw(JeiFletchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 34, 15, 123, 56, 256, 256);
-    }
+    }*/
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, JeiFletchingRecipe recipe, IFocusGroup iFocusGroup) {

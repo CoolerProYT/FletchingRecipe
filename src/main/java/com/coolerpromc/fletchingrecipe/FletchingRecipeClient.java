@@ -58,7 +58,7 @@ public class FletchingRecipeClient {
                 Holder<Item> explosiveItemHolder = itemStack.get(FletchingRecipe.EXPLOSIVE);
                 guiGraphics.pose().pushMatrix();
                 guiGraphics.pose().scale(0.5f);
-                guiGraphics.renderFakeItem(explosiveItemHolder.value().getDefaultInstance(), i * 2, i1 * 2);
+                guiGraphics.fakeItem(explosiveItemHolder.value().getDefaultInstance(), i * 2, i1 * 2);
                 guiGraphics.pose().popMatrix();
             }
             return true;

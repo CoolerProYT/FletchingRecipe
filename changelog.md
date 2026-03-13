@@ -1,1 +1,1 @@
-- Hide explosive material slot when explosive arrow disabled
+- Port to 26.1-pre-1

@@ -2,7 +2,6 @@ package com.coolerpromc.fletchingrecipe.compat.jei.category;
 
 import com.coolerpromc.fletchingrecipe.FletchingRecipe;
 import com.coolerpromc.fletchingrecipe.compat.jei.recipe.JeiExplosiveRecipe;
-import com.coolerpromc.fletchingrecipe.compat.jei.recipe.JeiFletchingRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -11,7 +10,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -29,10 +28,10 @@ public class ExplosiveCategory extends AbstractRecipeCategory<JeiExplosiveRecipe
         super(EXPLOSIVE_TYPE, Component.translatable("category.jei.explosive_arrow"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 140, 56);
     }
 
-    @Override
-    public void draw(JeiExplosiveRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    /*@Override
+    public void draw(JeiExplosiveRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 10, 15, 140, 56, 256, 256);
-    }
+    }*/
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, JeiExplosiveRecipe recipe, IFocusGroup iFocusGroup) {
