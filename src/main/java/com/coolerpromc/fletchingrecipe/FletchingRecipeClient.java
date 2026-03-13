@@ -6,7 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.recipe.v1.sync.ClientRecipeSynchronizedEvent;
-import net.fabricmc.fabric.api.client.rendering.v1.RenderItemDecorationsCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.ExtractItemDecorationsCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.Holder;
@@ -38,12 +38,12 @@ public class FletchingRecipeClient implements ClientModInitializer {
             lines.addAll(tooltips);
         });
 
-        RenderItemDecorationsCallback.EVENT.register((context, textRenderer, stack, x, y) -> {
+        ExtractItemDecorationsCallback.EVENT.register((context, textRenderer, stack, x, y) -> {
             if (stack.has(FletchingRecipe.EXPLOSIVE)) {
                 Holder<Item> explosiveItemHolder = stack.get(FletchingRecipe.EXPLOSIVE);
                 context.pose().pushMatrix();
                 context.pose().scale(0.5f);
-                context.renderFakeItem(explosiveItemHolder.value().getDefaultInstance(), x * 2, y * 2);
+                context.fakeItem(explosiveItemHolder.value().getDefaultInstance(), x * 2, y * 2);
                 context.pose().popMatrix();
             }
         });
