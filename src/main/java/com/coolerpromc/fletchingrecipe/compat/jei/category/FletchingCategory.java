@@ -26,10 +26,10 @@ public class FletchingCategory extends AbstractRecipeCategory<JeiFletchingRecipe
         super(FLETCHING_TYPE, Component.translatable("category.jei.fletching"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 123, 56);
     }
 
-    /*@Override
+    @Override
     public void draw(JeiFletchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 34, 15, 123, 56, 256, 256);
-    }*/
+    }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, JeiFletchingRecipe recipe, IFocusGroup iFocusGroup) {
