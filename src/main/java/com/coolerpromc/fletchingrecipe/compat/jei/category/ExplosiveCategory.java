@@ -27,11 +27,11 @@ public class ExplosiveCategory extends AbstractRecipeCategory<JeiExplosiveRecipe
         super(EXPLOSIVE_TYPE, Component.translatable("category.jei.explosive_arrow"), helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.FLETCHING_TABLE)), 140, 56);
     }
 
-    /*@Override
+    @Override
     public void draw(JeiExplosiveRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 10, 15, 140, 56, 256, 256);
     }
-*/
+
     @Override
     public void setRecipe(IRecipeLayoutBuilder iRecipeLayoutBuilder, JeiExplosiveRecipe recipe, IFocusGroup iFocusGroup) {
         iRecipeLayoutBuilder.addSlot(RecipeIngredientRole.INPUT,7,20).addItemStacks(List.of(recipe.explosiveIngredient()));
