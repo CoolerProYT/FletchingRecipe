@@ -19,7 +19,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 
 import java.util.List;
-// TODO: Replace the ARROW_PLUS item call with arrowplus multi-loader call once it is updated
+
 public class ArrowPlusTippedRecipe {
     public static void register(Holder<Potion> holder, List<JeiFletchingRecipe> list){
         Minecraft minecraft = Minecraft.getInstance();
@@ -27,13 +27,13 @@ public class ArrowPlusTippedRecipe {
 
         if (!holder.value().getEffects().isEmpty() && level != null){
             level.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
-                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS, ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
-                outputStack.set(ModDataComponents.ARROW_DATA, arrowDataHolder);
+                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount());
+                outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
 
                 JeiFletchingRecipe recipe = new JeiFletchingRecipe(
                         List.of(new ItemStack(Items.LINGERING_POTION.builtInRegistryHolder(), 1, DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build())),
-                        List.of(new ItemStack(ModItems.ARROW_PLUS.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA, arrowDataHolder).build())),
+                        List.of(new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.tippedArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build())),
                         List.of(),
                         outputStack
                 );
@@ -49,13 +49,13 @@ public class ArrowPlusTippedRecipe {
 
         if (level != null){
             level.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
-                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(ModDataComponents.ARROW_DATA, arrowDataHolder);
+                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(CommonClass.EXPLOSIVE.get(), explosiveIngredient);
 
                 JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
                         new ItemStack(explosiveIngredient, 1),
-                        new ItemStack(ModItems.ARROW_PLUS.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA, arrowDataHolder).build()),
+                        new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).build()),
                         outputStack
                 );
 
@@ -70,14 +70,14 @@ public class ArrowPlusTippedRecipe {
 
         if (!holder.value().getEffects().isEmpty() && level != null){
             level.registryAccess().lookupOrThrow(ModRegistries.ARROW_DATA_KEY).asHolderIdMap().forEach(arrowDataHolder -> {
-                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(ModDataComponents.ARROW_DATA, arrowDataHolder);
+                ItemStack outputStack = new ItemStack(ModItems.ARROW_PLUS.get(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                outputStack.set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder);
                 outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(holder));
                 outputStack.set(CommonClass.EXPLOSIVE.get(), explosiveIngredient);
 
                 JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
                         new ItemStack(explosiveIngredient, 1),
-                        new ItemStack(ModItems.ARROW_PLUS.builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA, arrowDataHolder).set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build()),
+                        new ItemStack(ModItems.ARROW_PLUS.get().builtInRegistryHolder(), ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount(), DataComponentPatch.builder().set(ModDataComponents.ARROW_DATA.get(), arrowDataHolder).set(DataComponents.POTION_CONTENTS, new PotionContents(holder)).build()),
                         outputStack
                 );
 

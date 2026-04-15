@@ -14,7 +14,7 @@ dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
 
-    compileOnly "com.coolerpromc:arrowplus:3.3.1+26.1-fabric"
+    implementation "com.coolerpromc.arrowplus:arrowplus-fabric-26.1.2:26.1.2.0"
 }
 
 loom {

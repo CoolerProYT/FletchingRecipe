@@ -47,7 +47,7 @@ public class FletchingRecipeClient {
         event.register(Items.SPECTRAL_ARROW, decorator);
         event.register(Items.TIPPED_ARROW, decorator);
         if (ModList.get().isLoaded("arrowplus")){
-            event.register(com.coolerpromc.arrowplus.item.ModItems.ARROW_PLUS, decorator);
+            event.register(com.coolerpromc.arrowplus.item.ModItems.ARROW_PLUS.get(), decorator);
         }
     }
 }

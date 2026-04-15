@@ -44,7 +44,7 @@ dependencies {
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
-    compileOnly("com.coolerpromc:arrowplus:3.2.2+26.1-neoforge")
+    implementation "com.coolerpromc.arrowplus:arrowplus-neoforge-26.1.2:26.1.2.0"
 }
 
 sourceSets.main.resources { srcDir rootProject.project(':common').file('src/generated/resources/').getAbsolutePath() }
