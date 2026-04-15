@@ -1,0 +1,15 @@
+{
+  "type": "fletchingrecipe:fletching",
+  "middle": {
+    "count": 1,
+    "ingredient": "minecraft:arrow"
+  },
+  "output": {
+    "count": 4,
+    "id": "minecraft:spectral_arrow"
+  },
+  "top": {
+    "count": 4,
+    "ingredient": "minecraft:glowstone_dust"
+  }
+}
