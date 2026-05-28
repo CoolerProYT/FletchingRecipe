@@ -30,7 +30,7 @@ repositories {
         url = 'https://maven.blamejared.com'
     }
     maven {
-        url = 'https://maven.coolerpromc.com'
+        url = 'https://maven.coolerpromc.com/releases'
     }
 }
 
