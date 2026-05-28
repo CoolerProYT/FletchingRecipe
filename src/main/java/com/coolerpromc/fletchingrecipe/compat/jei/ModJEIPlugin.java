@@ -45,13 +45,18 @@ public class ModJEIPlugin implements IModPlugin {
         IJeiHelpers jeiHelpers = registration.getJeiHelpers();
         IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
 
-        registration.addRecipeCategories(new FletchingCategory(guiHelper), new ExplosiveCategory(guiHelper));
+        registration.addRecipeCategories(new FletchingCategory(guiHelper));
+        if (ClientBoundConfigSyncPacket.INSTANCE.allowExplosiveCrafting()){
+            registration.addRecipeCategories(new ExplosiveCategory(guiHelper));
+        }
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), FletchingCategory.FLETCHING_TYPE);
-        registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), ExplosiveCategory.EXPLOSIVE_TYPE);
+        if (ClientBoundConfigSyncPacket.INSTANCE.allowExplosiveCrafting()){
+            registration.addRecipeCatalyst(Blocks.FLETCHING_TABLE.asItem().getDefaultInstance(), ExplosiveCategory.EXPLOSIVE_TYPE);
+        }
     }
 
     @Override
@@ -87,46 +92,48 @@ public class ModJEIPlugin implements IModPlugin {
 
         registration.addRecipes(FletchingCategory.FLETCHING_TYPE, fletchingTableRecipes);
 
-        List<JeiExplosiveRecipe> explosiveRecipes = new ArrayList<>();
+        if (ClientBoundConfigSyncPacket.INSTANCE.allowExplosiveCrafting()){
+            List<JeiExplosiveRecipe> explosiveRecipes = new ArrayList<>();
 
-        for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
-            ItemStack explosiveIngredient = new ItemStack(holder);
+            for (Holder<Item> holder : ExplosiveIngredientConfig.explosiveIngredients.keySet()){
+                ItemStack explosiveIngredient = new ItemStack(holder);
 
-            ItemStack arrow = Items.ARROW.getDefaultInstance();
-            arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
-            explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, arrow, arrowOutputStack));
+                ItemStack arrow = Items.ARROW.getDefaultInstance();
+                arrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                ItemStack arrowOutputStack = new ItemStack(Items.ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                arrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+                explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, arrow, arrowOutputStack));
 
-            ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
-            spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-            spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
-            explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, spectralArrow, spectralArrowOutputStack));
+                ItemStack spectralArrow = Items.SPECTRAL_ARROW.getDefaultInstance();
+                spectralArrow.setCount(ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                ItemStack spectralArrowOutputStack = new ItemStack(Items.SPECTRAL_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                spectralArrowOutputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+                explosiveRecipes.add(new JeiExplosiveRecipe(explosiveIngredient, spectralArrow, spectralArrowOutputStack));
 
-            if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, explosiveRecipes);
+                if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosive(holder, explosiveRecipes);
 
-            BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
-                if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, explosiveRecipes);
+                BuiltInRegistries.POTION.asHolderIdMap().forEach(potion -> {
+                    if (ModList.get().isLoaded("arrowplus")) ArrowPlusTippedRecipe.registerExplosiveTipped(potion, holder, explosiveRecipes);
 
-                ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+                    ItemStack inputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                    inputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
 
-                ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
-                outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-                outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
+                    ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, ClientBoundConfigSyncPacket.INSTANCE.explosiveArrowCraftingAmount());
+                    outputStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+                    outputStack.set(FletchingRecipe.EXPLOSIVE, holder);
 
-                JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
-                        new ItemStack(holder),
-                        inputStack,
-                        outputStack
-                );
+                    JeiExplosiveRecipe recipe = new JeiExplosiveRecipe(
+                            new ItemStack(holder),
+                            inputStack,
+                            outputStack
+                    );
 
-                explosiveRecipes.add(recipe);
-            });
+                    explosiveRecipes.add(recipe);
+                });
+            }
+
+            registration.addRecipes(ExplosiveCategory.EXPLOSIVE_TYPE, explosiveRecipes);
         }
-
-        registration.addRecipes(ExplosiveCategory.EXPLOSIVE_TYPE, explosiveRecipes);
     }
 
     @Override

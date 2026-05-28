@@ -1,1 +1,1 @@
-- Hide explosive material slot when explosive arrow disabled
+- Fixed explosive arrow still showing in Recipe Viewer when it is disabled in config
