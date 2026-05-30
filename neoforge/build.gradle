@@ -41,10 +41,10 @@ neoForge {
 }
 
 dependencies {
-    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
-    runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+    compileOnly("mezz.jei:jei-${dependencies_mc_version}-neoforge-api:${jei_version}")
+//    runtimeOnly("mezz.jei:jei-${dependencies_mc_version}-neoforge:${jei_version}")
 
-    implementation "com.coolerpromc.arrowplus:arrowplus-neoforge-26.1.2:26.1.2.0"
+    compileOnly "com.coolerpromc.arrowplus:arrowplus-neoforge-26.1.2:26.1.2.0"
 }
 
 sourceSets.main.resources { srcDir rootProject.project(':common').file('src/generated/resources/').getAbsolutePath() }
