@@ -77,7 +77,8 @@ processResources {
             'java_version'                 : java_version,
             'jei_version'                  : jei_version,
             'dependencies_mc_version'      : dependencies_mc_version,
-            'fabric_mc_version_range'      : fabric_mc_version_range
+            'fabric_mc_version_range'      : fabric_mc_version_range,
+            'is_snapshot'                  : is_snapshot
     ]
 
     var jsonExpandProps = expandProps.collectEntries {
@@ -104,7 +105,7 @@ publishing {
     }
     repositories {
         maven {
-            url = findProperty("maven_url")
+            url = is_snapshot ? findProperty("maven_url_snapshot") : findProperty("maven_url")
             credentials {
                 username = findProperty("maven_username")
                 password = findProperty("maven_password")
