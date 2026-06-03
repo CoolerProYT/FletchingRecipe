@@ -1,1 +1,6 @@
-- Fixed explosive arrow still showing in Recipe Viewer when it is disabled in config
+## 26.1.2.2
+### Fabric
+- Updated Projectile mixin code
+
+### NeoForge
+No Changes.

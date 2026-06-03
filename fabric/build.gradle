@@ -69,18 +69,15 @@ publishMods {
     curseforge {
         projectId = "1364606"
         accessToken = findProperty("CF_TOKEN")
-        minecraftVersionRange {
-            start = "26.1"
-            end = "26.1.2"
-        }
+        minecraftVersions.add(minecraft_version)
+
+        client = true
+        server = true
     }
 
     modrinth {
         projectId = 'nDfK7W8j'
         accessToken = findProperty("MODRINTH_TOKEN")
-        minecraftVersionRange {
-            start = "26.1"
-            end = "26.1.2"
-        }
+        minecraftVersions.add(minecraft_version)
     }
 }
