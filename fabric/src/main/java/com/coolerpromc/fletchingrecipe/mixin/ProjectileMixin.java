@@ -1,29 +1,20 @@
 package com.coolerpromc.fletchingrecipe.mixin;
 
 import com.coolerpromc.fletchingrecipe.CommonClass;
-import com.coolerpromc.fletchingrecipe.config.ExplosiveIngredientConfig;
-import net.minecraft.core.Holder;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Objects;
 
 @Mixin(AbstractArrow.class)
 public abstract class ProjectileMixin extends Projectile {
@@ -31,52 +22,25 @@ public abstract class ProjectileMixin extends Projectile {
         super(entityType, world);
     }
 
-    @Shadow
-    protected abstract Collection<EntityHitResult> findHitEntities(Vec3 from, Vec3 to);
-
-    @Shadow
-    public abstract byte getPierceLevel();
-
-    @Shadow
-    protected abstract ProjectileDeflection hitTargetsOrDeflectSelf(Collection<EntityHitResult> hitResults);
-
-    @Inject(method = "stepMoveAndHit", at = @At("HEAD"), cancellable = true)
-    private void onBlockHit(BlockHitResult blockHitResult, CallbackInfo ci) {
-        while(true) {
-            if (this.isAlive()) {
-                Vec3 vec3d = this.position();
-                ArrayList<EntityHitResult> arrayList = new ArrayList<>(this.findHitEntities(vec3d, blockHitResult.getLocation()));
-                arrayList.sort(Comparator.comparingDouble((entityHitResultx) -> vec3d.distanceToSqr(entityHitResultx.getEntity().position())));
-                EntityHitResult entityHitResult = arrayList.isEmpty() ? null : arrayList.getFirst();
-                Vec3 vec3d2 = Objects.requireNonNullElse(entityHitResult, blockHitResult).getLocation();
-                this.setPos(vec3d2);
-                this.applyEffectsFromBlocks(vec3d, vec3d2);
-                if (this.portalProcess != null && this.portalProcess.isInsidePortalThisTick()) {
-                    this.handlePortal();
-                }
-
-                if (arrayList.isEmpty()) {
-                    if (this.isAlive() && blockHitResult.getType() != HitResult.Type.MISS && !CommonClass.onProjectileImpact(this, blockHitResult)) {
-                        this.hitTargetOrDeflectSelf(blockHitResult);
-                        this.needsSync = true;
-                    }
-                } else {
-                    if (!this.isAlive() || this.noPhysics || entityHitResult.getType() == HitResult.Type.MISS) {
-                        continue;
-                    }
-
-                    if(!CommonClass.onProjectileImpact(this, entityHitResult)){
-                        ProjectileDeflection projectileDeflection = this.hitTargetsOrDeflectSelf(arrayList);
-                        this.needsSync = true;
-                        if (this.getPierceLevel() > 0 && projectileDeflection == ProjectileDeflection.NONE) {
-                            continue;
-                        }
-                    }
-                }
-            }
-
-            ci.cancel();
-            return;
+    @WrapOperation(
+        method = "stepMoveAndHit",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/arrow/AbstractArrow;hitTargetsOrDeflectSelf(Ljava/util/Collection;)Lnet/minecraft/world/entity/projectile/ProjectileDeflection;")
+    )
+    private ProjectileDeflection wrapEntityHit(AbstractArrow instance, Collection<EntityHitResult> entityHitResults, Operation<ProjectileDeflection> original, @Local(name = "firstEntityHit") EntityHitResult entityHitResult) {
+        if (CommonClass.onProjectileImpact(this, entityHitResult)) {
+            return null;
         }
+        return original.call(instance, entityHitResults);
+    }
+
+    @WrapOperation(
+        method = "stepMoveAndHit",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/arrow/AbstractArrow;hitTargetOrDeflectSelf(Lnet/minecraft/world/phys/HitResult;)Lnet/minecraft/world/entity/projectile/ProjectileDeflection;")
+    )
+    private ProjectileDeflection wrapBlockHit(AbstractArrow instance, HitResult hitResult, Operation<ProjectileDeflection> original) {
+        if (CommonClass.onProjectileImpact(this, hitResult)) {
+            return null;
+        }
+        return original.call(instance, hitResult);
     }
 }
