@@ -1,7 +1,7 @@
 package com.coolerpromc.fletchingrecipe.datagen;
 
 import com.coolerpromc.fletchingrecipe.Constants;
-import com.coolerpromc.fletchingrecipe.datagen.recipebuilder.FletchingRecipeBuilder;
+import com.coolerpromc.fletchingrecipe.recipe.builder.FletchingRecipeBuilder;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
 import net.minecraft.advancements.predicates.DataComponentMatchers;
 import net.minecraft.advancements.predicates.ItemPredicate;
