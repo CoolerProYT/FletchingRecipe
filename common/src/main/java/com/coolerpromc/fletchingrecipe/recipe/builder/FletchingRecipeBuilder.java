@@ -1,4 +1,4 @@
-package com.coolerpromc.fletchingrecipe.datagen.recipebuilder;
+package com.coolerpromc.fletchingrecipe.recipe.builder;
 
 import com.coolerpromc.fletchingrecipe.recipe.FletchingTableRecipe;
 import com.coolerpromc.fletchingrecipe.util.SizedIngredient;
