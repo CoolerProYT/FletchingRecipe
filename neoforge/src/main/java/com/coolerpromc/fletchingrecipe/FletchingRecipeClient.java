@@ -1,11 +1,12 @@
 package com.coolerpromc.fletchingrecipe;
 
 import com.coolerpromc.fletchingrecipe.screen.FletchingTableScreen;
-import net.minecraft.world.item.Items;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.ItemTags;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.IItemDecorator;
@@ -43,11 +44,6 @@ public class FletchingRecipeClient {
             return true;
         };
 
-        event.register(Items.ARROW, decorator);
-        event.register(Items.SPECTRAL_ARROW, decorator);
-        event.register(Items.TIPPED_ARROW, decorator);
-        if (ModList.get().isLoaded("arrowplus")){
-            event.register(com.coolerpromc.arrowplus.item.ModItems.ARROW_PLUS.get(), decorator);
-        }
+        BuiltInRegistries.ITEM.stream().forEach(i -> event.register(i, decorator));
     }
 }

@@ -1,6 +1,6 @@
-## 26.1.2.2
+## 26.2.0.1
 ### Fabric
-- Updated Projectile mixin code
+- No changes
 
 ### NeoForge
-No Changes.
+- Fixed game crash when `arrowplus` installed

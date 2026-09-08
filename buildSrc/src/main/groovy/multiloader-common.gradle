@@ -105,7 +105,7 @@ publishing {
     }
     repositories {
         maven {
-            url = is_snapshot ? findProperty("maven_url_snapshot") : findProperty("maven_url")
+            url = findProperty("maven_url")
             credentials {
                 username = findProperty("maven_username")
                 password = findProperty("maven_password")
