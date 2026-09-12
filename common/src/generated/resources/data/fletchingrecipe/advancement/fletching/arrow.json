@@ -33,7 +33,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fletchingrecipe:fletching/arrow"
+        "recipes": "fletchingrecipe:fletching/arrow"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

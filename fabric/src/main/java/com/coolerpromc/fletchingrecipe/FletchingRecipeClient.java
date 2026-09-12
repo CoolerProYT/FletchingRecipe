@@ -11,9 +11,16 @@ import net.fabricmc.fabric.api.client.rendering.v1.ExtractItemDecorationsCallbac
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.Holder;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.RegistrationInfo;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
+
+import com.mojang.serialization.Lifecycle;
 
 import java.util.LinkedList;
 
@@ -23,7 +30,11 @@ public class FletchingRecipeClient implements ClientModInitializer {
         MenuScreens.register(CommonClass.FLETCHING_TABLE_MENU.get(), FletchingTableScreen::new);
 
         ClientRecipeSynchronizedEvent.EVENT.register((client, recipes) -> {
-            CommonClientClass.recipeMap = RecipeMap.create(recipes.recipes());
+            MappedRegistry<Recipe<?>> synchronizedRecipes = new MappedRegistry<>(Registries.RECIPE, Lifecycle.stable());
+            for (RecipeHolder<?> recipe : recipes.recipes()) {
+                synchronizedRecipes.register(recipe.id(), recipe.value(), RegistrationInfo.BUILT_IN);
+            }
+            CommonClientClass.recipeMap = RecipeMap.create(synchronizedRecipes.freeze());
         });
 
         ClientPlayNetworking.registerGlobalReceiver(ClientBoundConfigSyncPacket.TYPE, (payload, context) -> ClientBoundConfigSyncPacket.handle(payload, new FabricPayloadContext(context)));

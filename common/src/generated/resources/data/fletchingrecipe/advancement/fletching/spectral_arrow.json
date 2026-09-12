@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fletchingrecipe:fletching/spectral_arrow"
+        "recipes": "fletchingrecipe:fletching/spectral_arrow"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
