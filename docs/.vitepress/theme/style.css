@@ -1,0 +1,164 @@
+:root {
+  --vp-c-brand-1: #8a4f24;
+  --vp-c-brand-2: #a0602f;
+  --vp-c-brand-3: #b8733d;
+  --vp-c-brand-soft: rgba(138, 79, 36, 0.14);
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #8a4f24 20%, #d4452b);
+  --vp-home-hero-image-background-image: radial-gradient(circle, rgba(212, 120, 43, 0.35) 0%, rgba(212, 120, 43, 0) 70%);
+  --vp-home-hero-image-filter: blur(40px);
+
+  --fr-slot-bg: #8b8b8b;
+  --fr-slot-dark: #373737;
+  --fr-slot-light: #ffffff;
+}
+
+.dark {
+  --vp-c-brand-1: #e0a36b;
+  --vp-c-brand-2: #cf8c52;
+  --vp-c-brand-3: #a0602f;
+  --vp-c-brand-soft: rgba(224, 163, 107, 0.16);
+}
+
+/* Pixel art stays crisp at any size. */
+.VPHero .image-src,
+.pixelated {
+  image-rendering: pixelated;
+}
+
+.VPHero .image-src {
+  width: 220px;
+  height: 220px;
+}
+
+.fr-muted {
+  color: var(--vp-c-text-2);
+  font-size: 0.875em;
+}
+
+/* Generators and pickers: fields on the left, output on the right when there is room. */
+.fr-builder {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+}
+
+.fr-builder .fr-gui {
+  margin: 0;
+}
+
+.fr-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+@container (min-width: 700px) {
+  .fr-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.fr-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fr-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+
+.fr-fields label code {
+  font-size: 0.9em;
+}
+
+.fr-fields code {
+  overflow-wrap: anywhere;
+}
+
+.fr-fields label.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.fr-fields .row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.fr-fields input:not([type='checkbox']),
+.fr-fields select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+}
+
+.fr-fields select {
+  font-family: inherit;
+  appearance: auto;
+}
+
+.fr-fields input:focus,
+.fr-fields select:focus {
+  border-color: var(--vp-c-brand-1);
+  outline: none;
+}
+
+.fr-fields fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+}
+
+.fr-fields legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px;
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.fr-builder .hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--vp-c-text-3);
+}
+
+.fr-builder .small-button {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+
+.fr-builder .small-button:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
