@@ -50,7 +50,7 @@ public class FletchingRecipe {
         eventBus.addListener(NeoForgeFletchingRecipeConfig::onConfigLoad);
         eventBus.addListener(NeoForgeFletchingRecipeConfig::onConfigReload);
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, NeoForgeFletchingRecipeConfig.CONFIG_SPEC);
+        modContainer.registerConfig(ModConfig.Type.SYNCED, NeoForgeFletchingRecipeConfig.CONFIG_SPEC);
     }
 
     @SubscribeEvent
