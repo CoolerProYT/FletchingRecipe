@@ -36,6 +36,9 @@
         "minecraft": "~26.1",
         "java": ">=${java_version}"
     },
+    "breaks": {
+        "arrowplus": "<${arrowplus_version}"
+    },
     "suggests": {
         "another-mod": "*"
     }

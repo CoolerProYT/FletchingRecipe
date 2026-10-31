@@ -34,3 +34,10 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features.${mod_id}]
 #openGLVersion="[3.2,)"
+
+[[dependencies.${mod_id}]]
+modId = "arrowplus"
+type = "optional"
+versionRange = "[${arrowplus_version},)"
+ordering = "AFTER"
+side = "BOTH"
