@@ -75,6 +75,7 @@ processResources {
             'neoforge_loader_version_range': neoforge_loader_version_range,
             'credits'                      : credits,
             'java_version'                 : java_version,
+            'arrowplus_version'            : arrowplus_version,
             'jei_version'                  : jei_version,
             'dependencies_mc_version'      : dependencies_mc_version,
             'fabric_mc_version_range'      : fabric_mc_version_range,
