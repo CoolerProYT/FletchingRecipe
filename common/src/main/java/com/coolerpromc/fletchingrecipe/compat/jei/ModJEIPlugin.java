@@ -137,6 +137,13 @@ public class ModJEIPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerAdvanced(IAdvancedRegistration registration) {
+        if (Services.PLATFORM.isModLoaded("arrowplus")) {
+            com.coolerpromc.fletchingrecipe.compat.arrowplus.ModularArrowRecipeLookup.register(registration);
+        }
+    }
+
+    @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addRecipeClickArea(FletchingTableScreen.class, 81, 35, 22, 16, FletchingCategory.FLETCHING_TYPE);
         registration.addRecipeClickArea(FletchingTableScreen.class, 81, 35, 22, 16, ExplosiveCategory.EXPLOSIVE_TYPE);
@@ -146,6 +153,6 @@ public class ModJEIPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registration.registerFromDataComponentTypes(Items.ARROW, CommonClass.EXPLOSIVE.get());
         registration.registerFromDataComponentTypes(Items.SPECTRAL_ARROW, CommonClass.EXPLOSIVE.get());
-        registration.registerFromDataComponentTypes(Items.TIPPED_ARROW, CommonClass.EXPLOSIVE.get());
+        registration.registerFromDataComponentTypes(Items.TIPPED_ARROW, DataComponents.POTION_CONTENTS, CommonClass.EXPLOSIVE.get());
     }
 }

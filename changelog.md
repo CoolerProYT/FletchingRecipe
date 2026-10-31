@@ -1,6 +1,12 @@
-## 26.3.0.1
-### Fabric
-- No changes
+## 26.3.0.2
+
+### Changes
+
+- Update compatibility with ArrowPlus `26.3.0.3` and its modular arrow system.
+- Preserve head, stick, and feather components in JEI tipping and explosive recipes.
+- Add JEI recipe lookups for custom arrow combinations and distinguish explosive variants.
+- Respect ArrowPlus disabled arrow heads and require a compatible ArrowPlus version when installed.
+- Fix duplicate JEI tipped-arrow subtype registration when ArrowPlus is not installed.
 
 ### NeoForge
-- Bump to `26.3.0.90` and fixes all breaking changes by NeoForge
+- Update NeoForge to `26.3.0.97`.
